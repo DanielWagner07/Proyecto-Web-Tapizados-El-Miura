@@ -1,0 +1,363 @@
+/* =====================
+   ESTILOS GENERALES
+   ===================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f4ef;
+    color: #333333;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* =====================
+   BARRA SUPERIOR
+   ===================== */
+
+.top-bar {
+    background-color: #f5f5f5;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.top-links {
+    display: flex;
+    gap: 15px;
+}
+
+.top-links a {
+    color: #666;
+    font-size: 14px;
+}
+
+.top-links a:hover {
+    color: #c41e3a;
+}
+
+.link-rojo {
+    color: #c41e3a !important;
+    font-weight: bold;
+}
+
+.top-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.carrito {
+    font-size: 14px;
+    color: #333;
+}
+
+.buscador {
+    display: flex;
+}
+
+.buscador input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    font-size: 14px;
+}
+
+.buscador button {
+    padding: 8px 12px;
+    background-color: #c41e3a;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.icono-btn {
+    width: 25px;
+    height: 25px;
+}
+
+/* =====================
+   LOGO
+   ===================== */
+
+.logo-container {
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-texto {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+.rojo {
+    color: #c41e3a;
+}
+
+/* =====================
+   MENU PRINCIPAL
+   ===================== */
+
+.menu-principal {
+    background-color: #333;
+    padding: 0 20px;
+}
+
+.boton-menu {
+    display: none;
+    background-color: #c41e3a;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.lista-menu {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.lista-menu li a {
+    display: block;
+    padding: 15px 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.lista-menu li a:hover {
+    color: #c41e3a;
+}
+
+/* =====================
+   CONTENEDOR PRINCIPAL
+   ===================== */
+
+.pagina-restauracion {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 40px 20px 64px;
+}
+
+.miga-pan {
+    font-size: 14px;
+    color: #8a7d72;
+    margin-bottom: 24px;
+}
+
+.miga-pan span {
+    color: #a45c40;
+    font-weight: 700;
+}
+
+.encabezado-restauracion {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.etiqueta-principal {
+    color: #a45c40;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.encabezado-restauracion h1 {
+    font-size: 40px;
+    margin-bottom: 14px;
+}
+
+.descripcion-principal {
+    max-width: 760px;
+    margin: 0 auto;
+    line-height: 1.7;
+    color: #5f554d;
+}
+
+/* =====================
+   BLOQUES DE LOCALES
+   ===================== */
+
+.bloque-local {
+    background: #ffffff;
+    border: 1px solid #eadfd3;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 28px rgba(69, 43, 26, 0.08);
+}
+
+.bloque-local + .bloque-local {
+    margin-top: 32px;
+}
+
+.titulo-local {
+    margin-bottom: 24px;
+}
+
+.titulo-local h2 {
+    font-size: 30px;
+}
+
+/* =====================
+   FILAS DE RENOVACION
+   ===================== */
+
+.fila-renovacion {
+    display: grid;
+    grid-template-columns: minmax(320px, 560px) minmax(280px, 1fr);
+    gap: 24px;
+    align-items: start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+.fila-renovacion > * {
+    min-width: 0;
+}
+
+.fila-invertida .columna-texto {
+    order: 1;
+}
+
+.fila-invertida .columna-imagen {
+    order: 2;
+}
+
+.columna-imagen img {
+    width: 100%;
+    height: 320px;
+    min-height: 0;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 1px solid #ede3d9;
+}
+
+.columna-texto {
+    max-width: 520px;
+    padding: 0;
+}
+
+.estado-local {
+    color: #c41e3a;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.columna-texto h3 {
+    font-size: 22px;
+    margin-bottom: 12px;
+}
+
+.columna-texto p {
+    line-height: 1.6;
+    color: #5f554d;
+    margin-bottom: 10px;
+}
+
+.columna-texto p:last-child {
+    margin-bottom: 0;
+}
+
+/* =====================
+   GALERIA ADICIONAL
+   ===================== */
+
+.galeria-local {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    justify-items: center;
+    margin-top: 8px;
+}
+
+.miniatura-local {
+    width: 100%;
+    max-width: 250px;
+}
+
+.miniatura-local img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 16px;
+    border: 1px solid #ede3d9;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.miniatura-local img:hover,
+.columna-imagen img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 22px rgba(69, 43, 26, 0.14);
+}
+
+/* =====================
+   VISOR DE IMAGENES
+   ===================== */
+
+.visor-imagen {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 16, 12, 0.82);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 1000;
+}
+
+.visor-imagen.activo {
+    display: flex;
+}
+
+#imagenAmpliada {
+    width: auto;
+    max-width: min(92vw, 1200px);
+    max-height: 88vh;
+    border-radius: 18px;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.32);
+    cursor: default;
+}
+
+.cerrar-visor {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 999px;
+    background: #fff;
+    color: #2f2a25;
+    font-weight: 700;
+}

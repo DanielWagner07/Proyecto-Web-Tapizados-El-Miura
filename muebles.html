@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muebles</title>
+    <link rel="stylesheet" href="css/muebles.css">
+</head>
+<body>
+    
+    <!-- Barra Superior -->
+    <div class="top-bar">
+        <div class="top-links">
+            <a href="#" class="link-rojo">Novedades y Ofertas</a>
+            <a href="#" class="link-rojo">Envío gratis</a>
+            <a href="#">Asesoría en diseño</a>
+            <a href="#">Colaboraciones</a>
+            <a href="#">Novedades</a>
+        </div>
+        <div class="top-right">
+            <a href="#" class="carrito">
+                🛒 Carrito
+            </a>
+            <div class="buscador">
+                <input type="text" placeholder="Buscar">
+                <button><img src="img/logo de buscar.png" alt="Buscar" class="icono-btn"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logo -->
+    <div class="logo-container">
+        <div class="logo">
+            <span class="logo-texto">TAPIZADOS <span class="rojo">MIURA</span></span>
+        </div>
+    </div>
+
+    <!-- Menu de Navegación -->
+    <nav class="menu-principal">
+        <button class="boton-menu" id="botonMenu">☰ Menú</button>
+        <ul class="lista-menu" id="listaMenu">
+            <li><a href="muebles.html">MUEBLES</a></li>
+            <li><a href="renovaciones.html">RENOVACIONES</a></li>
+            <li><a href="restauraciones.html">TAPIZADO Y RESTAURACION</a></li>
+            <li><a href="informacion.html">INFORMACION</a></li>
+        </ul>
+    </nav>
+    
+    <!-- Navegacion entre la pagina -->
+    <main class="pagina-muebles">
+        <section class="catalogo-muebles">
+            <aside class="sidebar-filtros">
+                <p class="miga-pan"><a href="index.html">Inicio</a> / <span>Muebles</span></p>
+                <h1>Muebles</h1>
+
+                <!-- Bloque de filtro para buscar productos -->
+                <div class="bloque-filtro">
+                    <h2>Color</h2>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="color" value="beige"> Beige</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="color" value="gris"> Gris</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="color" value="blanco"> Blanco</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="color" value="marron"> Marron</label>
+                </div>
+
+                <div class="bloque-filtro">
+                    <h2>Tamaño</h2>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="tamaño" value="pequeño"> Pequeño</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="tamaño" value="mediano"> Mediano</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="tamaño" value="grande"> Grande</label>
+                </div>
+
+                <div class="bloque-filtro">
+                    <h2>Tela</h2>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="tela" value="antifluido"> Antifluido</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="tela" value="antirasguño"> Antirasguño</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="tela" value="cuerina"> Cuerina</label>
+                </div>
+
+                <div class="bloque-filtro">
+                    <h2>Espuma</h2>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="espuma" value="alta"> Alta densidad</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="espuma" value="media"> Media densidad</label>
+                </div>
+
+                <div class="bloque-filtro">
+                    <h2>Madera</h2>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="madera" value="roble"> Roble</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="madera" value="pino"> Pino</label>
+                    <label class="opcion-filtro"><input type="checkbox" data-filter="madera" value="cedro"> Cedro</label>
+                </div>
+
+                <button class="boton-limpiar" id="limpiarFiltros" type="button">Limpiar filtros</button>
+            </aside>
+            
+            <!-- Seccion de productos con su precio y descripcion -->
+            <section class="zona-productos">
+                <div class="encabezado-catalogo">
+                    <div>
+                        <p class="subtitulo">Coleccion destacada</p>
+                        <h2>Muebles para sala, comedor y dormitorio</h2>
+                    </div>
+                    <p class="resultado" id="resultadoProductos">6 productos</p>
+                </div>
+
+                <div class="grid-productos" id="gridProductos">
+                    <article class="tarjeta-producto" data-color="beige" data-tamaño="grande" data-tela="antirasguño" data-espuma="alta" data-madera="roble">
+                        <span class="etiqueta">Nuevo</span>
+                        <img src="img/Sofa Breigh.jpg" alt="Sofa Comodo">
+                        <div class="contenido-producto">
+                            <h3>Sofa Comodo</h3>
+                            <p class="descripcion-producto">Ideal para espacios amplios con acabado suave y estructura resistente.</p>
+                            <p class="precio">$1.250.000</p>
+                            <a href="sofa-comodo.html" class="boton-producto">Ver producto</a>
+                        </div>
+                    </article>
+
+                    <article class="tarjeta-producto" data-color="marron" data-tamaño="pequeño" data-madera="pino">
+                        <img src="img/Mesa de Centro Marron.jpg" alt="Mesa de centro">
+                        <div class="contenido-producto">
+                            <h3>Mesa de Centro</h3>
+                            <p class="descripcion-producto">Diseno limpio en madera natural para una sala elegante y funcional.</p>
+                            <p class="precio">$480.000</p>
+                            <a href="producto.html" class="boton-producto">Ver producto</a>
+                        </div>
+                    </article>
+
+                    <article class="tarjeta-producto" data-color="gris" data-tamaño="pequeño" data-tela="antirasguño" data-espuma="media" data-madera="pino">
+                        <img src="img/Asiento Gris.jpg" alt="Asiento Confortable">
+                        <div class="contenido-producto">
+                            <h3>Asiento Confortable</h3>
+                            <p class="descripcion-producto">Asiento envolvente con un respaldo comodo para lectura o descanso.</p>
+                            <p class="precio">$890.000</p>
+                            <a href="producto.html" class="boton-producto">Ver producto</a>
+                        </div>
+                    </article>
+
+                    <article class="tarjeta-producto" data-color="blanco" data-tamaño="pequeño" data-madera="roble">
+                        <span class="etiqueta">Oferta</span>
+                        <img src="img/Comoda de Madera Blanca.jpg" alt="Comoda de madera">
+                        <div class="contenido-producto">
+                            <h3>Comoda de Madera</h3>
+                            <p class="descripcion-producto">Almacenamiento practico con estilo minimalista para dormitorio o estudio.</p>
+                            <p class="precio"><span class="precio-anterior">$760.000</span> $620.000</p>
+                            <a href="producto.html" class="boton-producto">Ver producto</a>
+                        </div>
+                    </article>
+
+                    <article class="tarjeta-producto" data-color="beige" data-tamaño="pequeño" data-tela="antifluido" data-espuma="media" data-madera="cedro">
+                        <img src="img/Silla Tapizada Beig.jpg" alt="Silla tapizada">
+                        <div class="contenido-producto">
+                            <h3>Silla Tapizada</h3>
+                            <p class="descripcion-producto">Perfecta para comedor, escritorio o rincones decorativos modernos.</p>
+                            <p class="precio">$320.000</p>
+                            <a href="producto.html" class="boton-producto">Ver producto</a>
+                        </div>
+                    </article>
+
+                    <article class="tarjeta-producto" data-color="gris" data-tamaño="grande" data-tela="antifluido" data-espuma="alta" data-madera="pino">
+                        <img src="img/Cabecera Elegante Gris.jpg" alt="Cabecero elegante">
+                        <div class="contenido-producto">
+                            <h3>Cabecero Elegante</h3>
+                            <p class="descripcion-producto">Aporta presencia y textura a la habitacion con acabado sofisticado.</p>
+                            <p class="precio">$540.000</p>
+                            <a href="producto.html" class="boton-producto">Ver producto</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <div class="notificacion" id="notificacion"></div>
+
+    <script src="js/muebles.js"></script>
+
+</body>
+</html>

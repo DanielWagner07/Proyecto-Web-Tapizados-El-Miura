@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tapizados Miura</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+
+    <!-- Barra Superior -->
+    <div class="top-bar">
+        <div class="top-links">
+            <a href="#" class="link-rojo">Novedades y Ofertas</a>
+            <a href="#" class="link-rojo">Envío gratis</a>
+            <a href="#">Asesoría en diseño</a>
+            <a href="#">Colaboraciones</a>
+            <a href="#">Novedades</a>
+        </div>
+        <div class="top-right">
+            <a href="#" class="carrito">
+                🛒 Carrito
+            </a>
+            <div class="buscador">
+                <input type="text" placeholder="Buscar">
+                <button><img src="img/logo de buscar.png" alt="Buscar" class="icono-btn"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logo -->
+    <div class="logo-container">
+        <div class="logo">
+            <span class="logo-texto">TAPIZADOS <span class="rojo">MIURA</span></span>
+        </div>
+    </div>
+
+    <!-- Menu de Navegación -->
+    <nav class="menu-principal">
+        <button class="boton-menu" id="botonMenu">☰ Menú</button>
+        <ul class="lista-menu" id="listaMenu">
+            <li><a href="muebles.html">MUEBLES</a></li>
+            <li><a href="renovaciones.html">RENOVACIONES</a></li>
+            <li><a href="restauraciones.html">TAPIZADO Y RESTAURACION</a></li>
+            <li><a href="informacion.html">INFORMACION</a></li>
+        </ul>
+    </nav>
+
+    <!-- Sección Hero -->
+    <section class="hero">
+        <div class="hero-contenido">
+            <h1>Diseño y Confort para tu Hogar</h1>
+            <p>Especialistas en tapizado y restauración de muebles</p>
+            <a href="muebles.html" class="boton">Ver Catálogo</a>
+        </div>
+    </section>
+
+    <!-- Sección Categorías -->
+    <section class="categorias">
+        <h2>Nuestras Categorías</h2>
+        <div class="categorias-grid">
+            <div class="categoria-card">
+                <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400" alt="Sofás">
+                <h3>Sofás</h3>
+            </div>
+            <div class="categoria-card">
+                <img src="img/silla01.jpg" alt="Sillas">
+                <h3>Sillas</h3>
+            </div>
+            <div class="categoria-card">
+                <img src="img/Mesa Cafe.jpg" alt="Mesas">
+                <h3>Mesas</h3>
+            </div>
+            <div class="categoria-card">
+                <img src="img/Tocador.jpg" alt="Tocador">
+                <h3>Tocador</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Productos -->
+    <section class="productos">
+        <h2>Productos Destacados</h2>
+        <div class="productos-grid">
+            
+            <div class="producto-card">
+                <span class="etiqueta-oferta">OFERTA</span>
+                <img src="img/Sofa moderno gris.jpg" alt="Sofá Moderno">
+                <h3>Sofá Moderno Gris</h3>
+                <p class="precio">
+                    <span class="precio-viejo">$1.499.999</span>
+                    <span class="precio-nuevo">$1.199.500</span>
+                </p>
+                <button class="boton-agregar" onclick="agregarCarrito('Sofá Moderno Gris')">Añadir al Carrito</button>
+            </div>
+
+            <div class="producto-card">
+                <img src="img/Sillon Relax.jpg" alt="Sillón">
+                <h3>Sillón Relax</h3>
+                <p class="precio">
+                    <span class="precio-nuevo">$899.999</span>
+                </p>
+                <button class="boton-agregar" onclick="agregarCarrito('Sillón Relax')">Añadir al Carrito</button>
+            </div>
+
+            <div class="producto-card">
+                <img src="img/Silla de Comedor.jpg" alt="Silla">
+                <h3>Silla de Comedor</h3>
+                <p class="precio">
+                    <span class="precio-nuevo">$299.999</span>
+                </p>
+                <button class="boton-agregar" onclick="agregarCarrito('Silla de Comedor')">Añadir al Carrito</button>
+            </div>
+
+            <div class="producto-card">
+                <span class="etiqueta-oferta">OFERTA</span>
+                <img src="img/Mesa de Centro.jpg" alt="Mesa">
+                <h3>Mesa de Centro</h3>
+                <p class="precio">
+                    <span class="precio-viejo">$250.999</span>
+                    <span class="precio-nuevo">$199.999</span>
+                </p>
+                <button class="boton-agregar" onclick="agregarCarrito('Mesa de Centro')">Añadir al Carrito</button>
+            </div>
+
+            <div class="producto-card">
+                <img src="img/Sofa Cama.jpg" alt="Sofá">
+                <h3>Sofa Cama</h3>
+                <p class="precio">
+                    <span class="precio-nuevo">$149.999</span>
+                </p>
+                <button class="boton-agregar" onclick="agregarCarrito('Sofa Cama')">Añadir al Carrito</button>
+            </div>
+
+            <div class="producto-card">
+                <span class="etiqueta-oferta">NUEVO</span>
+                <img src="img/Sofa Esquinero.jpg" alt="Sofá">
+                <h3>Sofá Esquinero</h3>
+                <p class="precio">
+                    <span class="precio-nuevo">$649.999</span>
+                </p>
+                <button class="boton-agregar" onclick="agregarCarrito('Sofá Esquinero')">Añadir al Carrito</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-contenido">
+            
+            <div class="footer-seccion">
+                <h4>Tapizados Miura</h4>
+                <p>Especialistas en tapizado y restauración de muebles desde 2018.</p>
+            </div>
+
+            <div class="footer-seccion">
+                <h4>Enlaces</h4>
+                <ul>
+                    <li><a href="#">Inicio</a></li>
+                    <li><a href="#">Productos</a></li>
+                    <li><a href="#">Servicios</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-seccion">
+                <h4>Contacto</h4>
+                <p>📍 Carrera 18 Cll 11-12, Caucasia, Antioquia</p>
+                <p>📞 +57 300 1234567</p>
+                <p>✉️ info@tapizadosmiura.com</p>
+            </div>
+
+            <div class="footer-seccion">
+                <h4>Síguenos</h4>
+                <div class="redes-sociales">
+                    <a href="#">Facebook</a>
+                    <a href="#">Instagram</a>
+                    <a href="#">Twitter</a>
+                </div>
+            </div>
+
+        </div>
+        <div class="footer-abajo">
+            <p>© 2024 Tapizados Miura. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Botón WhatsApp -->
+    <a href="https://wa.me/34912345678" class="boton-whatsapp">
+        💬
+    </a>
+
+    <!-- Notificación del Carrito -->
+    <div class="notificacion" id="notificacion">
+        Producto añadido al carrito
+    </div>
+
+    <script src="js/index.js"></script>
+</body>
+</html>

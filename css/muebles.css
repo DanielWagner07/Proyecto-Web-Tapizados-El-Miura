@@ -1,0 +1,389 @@
+/* =====================
+   ESTILOS GENERALES
+   ===================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f4ef;
+    color: #333333;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* =====================
+   BARRA SUPERIOR
+   ===================== */
+
+.top-bar {
+    background-color: #f5f5f5;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.top-links {
+    display: flex;
+    gap: 15px;
+}
+
+.top-links a {
+    color: #666;
+    font-size: 14px;
+}
+
+.top-links a:hover {
+    color: #c41e3a;
+}
+
+.link-rojo {
+    color: #c41e3a !important;
+    font-weight: bold;
+}
+
+.top-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.carrito {
+    font-size: 14px;
+    color: #333;
+}
+
+.buscador {
+    display: flex;
+}
+
+.buscador input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    font-size: 14px;
+}
+
+.buscador button {
+    padding: 8px 12px;
+    background-color: #c41e3a;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.icono-btn {
+    width: 25px;
+    height: 25px;
+}
+
+/* =====================
+   LOGO
+   ===================== */
+
+.logo-container {
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-texto {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+.rojo {
+    color: #c41e3a;
+}
+
+/* =====================
+   MENU PRINCIPAL
+   ===================== */
+
+.menu-principal {
+    background-color: #333;
+    padding: 0 20px;
+}
+
+.boton-menu {
+    display: none;
+    background-color: #c41e3a;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.lista-menu {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.lista-menu li a {
+    display: block;
+    padding: 15px 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.lista-menu li a:hover {
+    color: #c41e3a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f7f4ef;
+    color: #2f2a25;
+}
+
+img {
+    display: block;
+    width: 100%;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+/* =====================
+   PAGINA DE MUEBLES
+   ===================== */
+.pagina-muebles {
+    padding: 48px 20px;
+}
+
+.catalogo-muebles {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+.sidebar-filtros {
+    background: #fffdf9;
+    border: 1px solid #e8ddd1;
+    border-radius: 20px;
+    padding: 28px 24px;
+    position: sticky;
+    top: 24px;
+}
+
+.miga-pan {
+    font-size: 14px;
+    color: #8a7d72;
+    margin-bottom: 16px;
+}
+
+.miga-pan span {
+    color: #a45c40;
+    font-weight: 700;
+}
+
+.sidebar-filtros h1 {
+    font-size: 34px;
+    margin-bottom: 28px;
+}
+
+.bloque-filtro {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee2d8;
+}
+
+.bloque-filtro h2 {
+    font-size: 18px;
+    margin-bottom: 14px;
+}
+
+.opcion-filtro {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: #5c5149;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.opcion-filtro input {
+    accent-color: #a45c40;
+}
+
+.boton-limpiar {
+    width: 100%;
+    border: none;
+    background: #2f2a25;
+    color: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.25s ease;
+}
+
+.boton-limpiar:hover {
+    background: #a45c40;
+}
+
+.zona-productos {
+    min-width: 0;
+}
+
+.encabezado-catalogo {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.subtitulo {
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    font-size: 12px;
+    color: #a45c40;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.encabezado-catalogo h2 {
+    font-size: 36px;
+    line-height: 1.15;
+    max-width: 620px;
+}
+
+.resultado {
+    color: #7b6f65;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+.grid-productos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.tarjeta-producto {
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #eadfd3;
+    box-shadow: 0 16px 35px rgba(69, 43, 26, 0.08);
+    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tarjeta-producto:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 45px rgba(69, 43, 26, 0.12);
+}
+
+.tarjeta-producto.oculto {
+    display: none;
+}
+
+.tarjeta-producto img {
+    height: 240px;
+    object-fit: cover;
+}
+
+.etiqueta {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: #a45c40;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12;
+    font-weight: 700;
+    z-index: 1;
+}
+
+.contenido-producto {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+}
+
+.contenido-producto h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.descripcion-producto {
+    color: #6d6259;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    min-height: 64px;
+}
+
+.precio {
+    color: #a45c40;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 18px;
+}
+
+.precio-anterior {
+    color: #9c9087;
+    font-size: 15px;
+    text-decoration: line-through;
+    margin-right: 8px;
+    font-weight: 400;
+}
+
+a.boton-producto {
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    background: #2f2a25;
+    color: #fff;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.25s ease;
+}
+
+a.boton-producto:hover {
+    background: #a45c40;
+}
