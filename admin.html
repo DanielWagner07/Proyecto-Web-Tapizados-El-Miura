@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador - Tapizados El Miura</title>
+    <link rel="stylesheet" href="css/index.css"> <!-- Reutilizamos tus estilos base -->
+    <style>
+        /* Estilos rápidos específicos para el panel */
+        .admin-container { max-width: 800px; margin: 50px auto; padding: 20px; font-family: sans-serif; }
+        .formulario-admin { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .formulario-admin input, .formulario-admin textarea, .formulario-admin select { padding: 10px; border: 1px solid #ccc; }
+        .oculto { display: none; }
+        .panel-nav { display: flex; gap: 10px; margin-bottom: 20px; }
+        .panel-nav button { padding: 10px; cursor: pointer; background: #333; color: white; border: none; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <!-- CU01: Iniciar Sesión -->
+        <section id="seccion-login" class="formulario-admin">
+            <h2>Acceso Administrativo</h2>
+            <input type="text" id="login-usuario" placeholder="Usuario / Correo">
+            <input type="password" id="login-password" placeholder="Contraseña">
+            <button id="btn-login" class="boton-rojo">Iniciar Sesión</button>
+            <p id="mensaje-login" style="color: red;"></p>
+        </section>
+
+        <!-- Dashboard Administrativo (Oculto por defecto) -->
+        <section id="seccion-dashboard" class="oculto">
+            <h1>Panel de Control - Tapizados El Miura</h1>
+            <button id="btn-cerrar-sesion" style="float: right;">Cerrar Sesión</button>
+            
+            <nav class="panel-nav">
+                <button onclick="mostrarModulo('modulo-catalogo')">Gestor de Catálogo</button>
+                <button onclick="mostrarModulo('modulo-galeria')">Galería de Restauraciones</button>
+                <button onclick="mostrarModulo('modulo-informacion')">Gestor de Información</button>
+            </nav>
+
+            <!-- CU07: Crear Producto -->
+            <div id="modulo-catalogo" class="formulario-admin">
+                <h3>Crear Nuevo Mueble</h3>
+                <input type="text" id="prod-nombre" placeholder="Nombre del producto (Ej. Sofá 3 puestos)" required>
+                <input type="number" id="prod-precio" placeholder="Precio ($)" min="1" required>
+                <input type="number" id="prod-stock" placeholder="Stock disponible" min="0" required>
+                <select id="prod-categoria">
+                    <option value="1">Salas</option>
+                    <option value="2">Comedores</option>
+                    <option value="3">Sillas</option>
+                </select>
+                <label>Imagen del producto:</label>
+                <input type="file" id="prod-imagen" accept="image/png, image/jpeg" required>
+                <button id="btn-guardar-producto">Guardar Producto</button>
+            </div>
+
+            <!-- CU08: Gestionar Trabajos Realizados -->
+            <div id="modulo-galeria" class="formulario-admin oculto">
+                <h3>Subir Restauración / Colaboración</h3>
+                <input type="text" id="trab-titulo" placeholder="Título del trabajo" required>
+                <textarea id="trab-descripcion" placeholder="Descripción de la restauración..." rows="3"></textarea>
+                <label>Fotografía del ANTES:</label>
+                <input type="file" id="trab-img-antes" accept="image/png, image/jpeg" required>
+                <label>Fotografía del DESPUÉS:</label>
+                <input type="file" id="trab-img-despues" accept="image/png, image/jpeg" required>
+                <button id="btn-guardar-trabajo">Publicar Trabajo</button>
+            </div>
+
+            <!-- CU09: Editar Información Comercial -->
+            <div id="modulo-informacion" class="formulario-admin oculto">
+                <h3>Actualizar Datos del Negocio</h3>
+                <input type="text" id="info-whatsapp" placeholder="Número de WhatsApp">
+                <input type="text" id="info-cobertura" placeholder="Zonas de cobertura (Ej. Caucasia, Popayán)">
+                <button id="btn-actualizar-info">Actualizar Información</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
