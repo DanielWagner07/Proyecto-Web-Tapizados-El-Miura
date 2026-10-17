@@ -1,0 +1,14 @@
+# Salida de compilación de Maven
+target/
+*.war
+*.class
+
+# Archivos de editores y sistema operativo
+.vscode/
+.idea/
+*.iml
+Thumbs.db
+.DS_Store
+
+# Registros
+*.log

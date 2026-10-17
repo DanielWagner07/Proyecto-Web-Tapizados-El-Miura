@@ -1,0 +1,33 @@
+<%--
+  Cabecera común del panel administrador.
+  Se incorpora con la directiva <%@ include file="..." %> (inclusión estática):
+  su contenido se copia dentro de cada JSP antes de compilarla.
+  Requiere que la página defina la variable "seccion" (catalogo, galeria, informacion).
+--%>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+<header class="barra-admin">
+    <a class="marca" href="${ctx}/admin/productos">TAPIZADOS <span>MIURA</span> <small>Panel</small></a>
+
+    <nav class="menu-admin" aria-label="Módulos del panel">
+        <a href="${ctx}/admin/productos" class="${seccion == 'catalogo' ? 'activo' : ''}">Gestor de catálogo</a>
+        <span class="pendiente" title="Disponible en la siguiente entrega">Galería de trabajos</span>
+        <span class="pendiente" title="Disponible en la siguiente entrega">Información del negocio</span>
+    </nav>
+
+    <div class="usuario-admin">
+        <span><c:out value="${sessionScope.adminSesion.nombre}" /></span>
+        <a href="${ctx}/index.html" target="_blank" rel="noopener">Ver sitio</a>
+        <form action="${ctx}/admin/logout" method="post">
+            <button type="submit" class="boton-enlace">Cerrar sesión</button>
+        </form>
+    </div>
+</header>
+
+<%-- Aviso de una sola lectura dejado por el servlet tras guardar (patrón Post/Redirect/Get) --%>
+<c:if test="${not empty sessionScope.aviso}">
+    <p class="aviso aviso-${sessionScope.aviso.tipo}" role="status"><c:out value="${sessionScope.aviso.texto}" /></p>
+    <c:remove var="aviso" scope="session" />
+</c:if>
+<c:if test="${not empty error}">
+    <p class="aviso aviso-error" role="alert"><c:out value="${error}" /></p>
+</c:if>
