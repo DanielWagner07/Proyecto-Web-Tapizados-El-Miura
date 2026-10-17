@@ -83,8 +83,7 @@ h1 {
     flex: 1;
 }
 
-.menu-admin a,
-.menu-admin .pendiente {
+.menu-admin a {
     padding: 6px 12px;
     border-radius: var(--radio);
     font-size: 0.92rem;
@@ -92,14 +91,13 @@ h1 {
     color: var(--texto);
 }
 
+.menu-admin a:hover {
+    background: var(--fondo);
+}
+
 .menu-admin a.activo {
     background: var(--rojo);
     color: var(--blanco);
-}
-
-.menu-admin .pendiente {
-    color: #aaa;
-    cursor: default;
 }
 
 .usuario-admin {
@@ -315,6 +313,8 @@ h1 {
 .formulario input[type="email"],
 .formulario input[type="password"],
 .formulario input[type="number"],
+.formulario input[type="tel"],
+.formulario input[type="url"],
 .formulario input[type="file"],
 .formulario select,
 .formulario textarea,
@@ -430,6 +430,202 @@ label.campo-casilla {
     margin-bottom: 30px;
 }
 
+.ayuda {
+    margin: 0 0 14px;
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+}
+
+.rejilla-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.enlace-peligro {
+    color: var(--rojo-oscuro);
+}
+
+/* ---------- Galería de trabajos ---------- */
+.pestanas {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--borde);
+}
+
+.pestanas a {
+    padding: 8px 14px;
+    color: var(--texto-suave);
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+}
+
+.pestanas a.activa {
+    color: var(--rojo);
+    font-weight: bold;
+    border-bottom-color: var(--rojo);
+}
+
+.rejilla-trabajos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 18px;
+}
+
+.tarjeta-trabajo {
+    display: flex;
+    flex-direction: column;
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    overflow: hidden;
+}
+
+.tarjeta-inactiva {
+    opacity: 0.6;
+}
+
+.fotos-tarjeta {
+    display: grid;
+    gap: 2px;
+    background: var(--borde);
+}
+
+.fotos-dobles {
+    grid-template-columns: 1fr 1fr;
+}
+
+.fotos-tarjeta figure {
+    position: relative;
+    margin: 0;
+}
+
+.fotos-tarjeta img {
+    display: block;
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    background: var(--fondo);
+}
+
+.fotos-tarjeta figcaption {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.65);
+    color: var(--blanco);
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.cuerpo-tarjeta {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 6px;
+    padding: 14px 16px 16px;
+}
+
+.cuerpo-tarjeta h2 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.meta-tarjeta {
+    display: flex;
+    gap: 6px;
+    margin: 0;
+}
+
+.detalle-tarjeta {
+    margin: 0 0 6px;
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+    flex: 1;
+}
+
+.etiqueta-tipo-r {
+    background: #fff3e0;
+    color: #b45309;
+}
+
+.etiqueta-tipo-c {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.opciones-tipo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.formulario .opcion-tipo {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.opcion-tipo:has(input:checked) {
+    border-color: var(--rojo);
+    background: #fffafa;
+}
+
+.opcion-tipo input {
+    margin-top: 3px;
+}
+
+.opcion-tipo small {
+    display: block;
+    margin-top: 2px;
+    color: var(--texto-suave);
+}
+
+.fotos-guardadas {
+    margin-bottom: 30px;
+    padding: 18px 20px;
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+}
+
+.fotos-guardadas h2 {
+    margin: 0 0 14px;
+    font-size: 1rem;
+    color: var(--rojo);
+}
+
+.rejilla-fotos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px;
+}
+
+.rejilla-fotos figure {
+    margin: 0;
+    text-align: center;
+}
+
+.rejilla-fotos img {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    border-radius: var(--radio);
+    border: 1px solid var(--borde);
+}
+
+.rejilla-fotos form {
+    margin: 4px 0 0;
+}
+
 /* ---------- Inicio de sesión ---------- */
 .pagina-login {
     display: flex;
@@ -481,7 +677,9 @@ label.campo-casilla {
 
 /* ---------- Pantallas pequeñas ---------- */
 @media (max-width: 760px) {
-    .rejilla {
+    .rejilla,
+    .rejilla-2,
+    .opciones-tipo {
         grid-template-columns: 1fr;
     }
 

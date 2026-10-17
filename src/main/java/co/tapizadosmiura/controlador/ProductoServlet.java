@@ -5,6 +5,7 @@ import co.tapizadosmiura.dao.ProductoDAO;
 import co.tapizadosmiura.modelo.Producto;
 import co.tapizadosmiura.util.AlmacenImagenes;
 import co.tapizadosmiura.util.ProductoValidador;
+import co.tapizadosmiura.util.ResultadoValidacion;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -21,6 +22,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static co.tapizadosmiura.util.ServletUtil.enteroPositivo;
+import static co.tapizadosmiura.util.ServletUtil.esMultipart;
+import static co.tapizadosmiura.util.ServletUtil.leerCampos;
+import static co.tapizadosmiura.util.ServletUtil.parametro;
+import static co.tapizadosmiura.util.ServletUtil.redirigirConAviso;
 
 /**
  * CU07 - Gestor de catálogo del panel administrador.
@@ -51,6 +58,7 @@ public class ProductoServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = Logger.getLogger(ProductoServlet.class.getName());
+    private static final String RUTA = "/admin/productos";
     private static final String VISTA_LISTA = "/WEB-INF/vistas/admin/productos.jsp";
     private static final String VISTA_FORMULARIO = "/WEB-INF/vistas/admin/producto-form.jsp";
     private static final String ERROR_BD = "Ocurrió un error con la base de datos. Intente de nuevo.";
@@ -99,7 +107,7 @@ public class ProductoServlet extends HttpServlet {
             throws SQLException, ServletException, IOException {
         Producto producto = productoDAO.buscarPorId(enteroPositivo(parametro(request, "id")));
         if (producto == null) {
-            redirigirConMensaje(request, response, "error", "El producto solicitado no existe.");
+            redirigirConAviso(request, response, RUTA, "error", "El producto solicitado no existe.");
             return;
         }
         mostrarFormulario(request, response, producto, new HashMap<>());
@@ -112,13 +120,12 @@ public class ProductoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String tipoContenido = request.getContentType();
-        if (tipoContenido != null && tipoContenido.startsWith("multipart/")) {
+        if (esMultipart(request)) {
             try {
                 request.getParts(); // fuerza la lectura del formulario con archivos
             } catch (IllegalStateException e) {
                 // El envío superó maxRequestSize: no se pueden leer los demás campos.
-                redirigirConMensaje(request, response, "error", "La imagen es demasiado grande (máximo 5 MB).");
+                redirigirConAviso(request, response, RUTA, "error", "La imagen es demasiado grande (máximo 5 MB).");
                 return;
             }
         }
@@ -132,23 +139,16 @@ public class ProductoServlet extends HttpServlet {
             }
         } catch (SQLException e) {
             LOG.log(Level.SEVERE, "Error al guardar el producto", e);
-            redirigirConMensaje(request, response, "error", ERROR_BD);
+            redirigirConAviso(request, response, RUTA, "error", ERROR_BD);
         }
     }
 
     /** Crea o actualiza un producto con su imagen principal. */
     private void guardar(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, ServletException, IOException {
-        Map<String, String> campos = new LinkedHashMap<>();
-        for (String nombre : CAMPOS_FORMULARIO) {
-            String valor = request.getParameter(nombre);
-            if (valor != null) {
-                campos.put(nombre, valor);
-            }
-        }
-
-        ProductoValidador.Resultado resultado = ProductoValidador.validar(campos);
-        Producto producto = resultado.getProducto();
+        ResultadoValidacion<Producto> resultado =
+                ProductoValidador.validar(leerCampos(request, CAMPOS_FORMULARIO));
+        Producto producto = resultado.getObjeto();
         Map<String, String> errores = new LinkedHashMap<>(resultado.getErrores());
 
         int idProducto = enteroPositivo(parametro(request, "idProducto"));
@@ -186,13 +186,13 @@ public class ProductoServlet extends HttpServlet {
 
         if (esNuevo) {
             productoDAO.crear(producto, rutaImagen);
-            redirigirConMensaje(request, response, "exito",
+            redirigirConAviso(request, response, RUTA, "exito",
                     "Producto \"" + producto.getNombre() + "\" registrado en el catálogo.");
         } else if (productoDAO.actualizar(producto, rutaImagen)) {
-            redirigirConMensaje(request, response, "exito",
+            redirigirConAviso(request, response, RUTA, "exito",
                     "Producto \"" + producto.getNombre() + "\" actualizado.");
         } else {
-            redirigirConMensaje(request, response, "error", "El producto ya no existe.");
+            redirigirConAviso(request, response, RUTA, "error", "El producto ya no existe.");
         }
     }
 
@@ -202,16 +202,12 @@ public class ProductoServlet extends HttpServlet {
         int id = enteroPositivo(parametro(request, "id"));
         boolean activar = "true".equals(parametro(request, "activo"));
         if (id > 0 && productoDAO.cambiarEstado(id, activar)) {
-            redirigirConMensaje(request, response, "exito",
+            redirigirConAviso(request, response, RUTA, "exito",
                     activar ? "Producto visible en el catálogo." : "Producto oculto del catálogo.");
         } else {
-            redirigirConMensaje(request, response, "error", "El producto solicitado no existe.");
+            redirigirConAviso(request, response, RUTA, "error", "El producto solicitado no existe.");
         }
     }
-
-    // =====================================================================
-    // Apoyo
-    // =====================================================================
 
     private void mostrarFormulario(HttpServletRequest request, HttpServletResponse response,
                                    Producto producto, Map<String, String> errores)
@@ -220,30 +216,5 @@ public class ProductoServlet extends HttpServlet {
         request.setAttribute("errores", errores);
         request.setAttribute("categorias", categoriaDAO.listarActivas());
         request.getRequestDispatcher(VISTA_FORMULARIO).forward(request, response);
-    }
-
-    /**
-     * Guarda un mensaje de una sola lectura en la sesión y vuelve al listado.
-     *
-     * @param tipo "exito" o "error" (define el color del aviso)
-     */
-    private void redirigirConMensaje(HttpServletRequest request, HttpServletResponse response,
-                                     String tipo, String texto) throws IOException {
-        request.getSession().setAttribute("aviso", Map.of("tipo", tipo, "texto", texto));
-        response.sendRedirect(request.getContextPath() + "/admin/productos");
-    }
-
-    private static String parametro(HttpServletRequest request, String nombre) {
-        String valor = request.getParameter(nombre);
-        return valor == null ? "" : valor.trim();
-    }
-
-    /** Convierte a entero positivo; devuelve 0 si el texto no es válido. */
-    private static int enteroPositivo(String texto) {
-        try {
-            return Math.max(0, Integer.parseInt(texto));
-        } catch (NumberFormatException e) {
-            return 0;
-        }
     }
 }

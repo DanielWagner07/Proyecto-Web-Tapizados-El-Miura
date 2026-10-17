@@ -1,5 +1,7 @@
 package co.tapizadosmiura.util;
 
+import co.tapizadosmiura.modelo.Producto;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -32,20 +34,20 @@ class ProductoValidadorTest {
     @Test
     @DisplayName("Un formulario con los campos obligatorios es válido")
     void formularioMinimoEsValido() {
-        ProductoValidador.Resultado r = ProductoValidador.validar(formularioValido());
+        ResultadoValidacion<Producto> r = ProductoValidador.validar(formularioValido());
 
         assertTrue(r.esValido(), () -> "Errores inesperados: " + r.getErrores());
-        assertEquals("00099", r.getProducto().getReferencia());
-        assertEquals(new BigDecimal("1500000"), r.getProducto().getPrecio());
-        assertTrue(r.getProducto().isEstado());
-        assertFalse(r.getProducto().isRequiereArmado());
-        assertNull(r.getProducto().getAltoCm());
+        assertEquals("00099", r.getObjeto().getReferencia());
+        assertEquals(new BigDecimal("1500000"), r.getObjeto().getPrecio());
+        assertTrue(r.getObjeto().isEstado());
+        assertFalse(r.getObjeto().isRequiereArmado());
+        assertNull(r.getObjeto().getAltoCm());
     }
 
     @Test
     @DisplayName("Los campos obligatorios vacíos generan error")
     void camposObligatoriosVacios() {
-        ProductoValidador.Resultado r = ProductoValidador.validar(new HashMap<>());
+        ResultadoValidacion<Producto> r = ProductoValidador.validar(new HashMap<>());
 
         assertFalse(r.esValido());
         assertTrue(r.getErrores().keySet().containsAll(
@@ -95,9 +97,9 @@ class ProductoValidadorTest {
         campos.put("pesoKg", "62,2");
         campos.put("altoCm", "0");
 
-        ProductoValidador.Resultado r = ProductoValidador.validar(campos);
+        ResultadoValidacion<Producto> r = ProductoValidador.validar(campos);
 
-        assertEquals(new BigDecimal("62.2"), r.getProducto().getPesoKg());
+        assertEquals(new BigDecimal("62.2"), r.getObjeto().getPesoKg());
         assertTrue(r.getErrores().containsKey("altoCm"));
     }
 
@@ -108,10 +110,10 @@ class ProductoValidadorTest {
         campos.remove("estado");
         campos.put("requiereArmado", "on");
 
-        ProductoValidador.Resultado r = ProductoValidador.validar(campos);
+        ResultadoValidacion<Producto> r = ProductoValidador.validar(campos);
 
-        assertFalse(r.getProducto().isEstado());
-        assertTrue(r.getProducto().isRequiereArmado());
+        assertFalse(r.getObjeto().isEstado());
+        assertTrue(r.getObjeto().isRequiereArmado());
     }
 
     @Test
@@ -121,9 +123,9 @@ class ProductoValidadorTest {
         campos.put("nombre", "   Poltrona azul   ");
         campos.put("color", "   ");
 
-        ProductoValidador.Resultado r = ProductoValidador.validar(campos);
+        ResultadoValidacion<Producto> r = ProductoValidador.validar(campos);
 
-        assertEquals("Poltrona azul", r.getProducto().getNombre());
-        assertNull(r.getProducto().getColor());
+        assertEquals("Poltrona azul", r.getObjeto().getNombre());
+        assertNull(r.getObjeto().getColor());
     }
 }

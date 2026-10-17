@@ -7,6 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static co.tapizadosmiura.util.CamposFormulario.decimal;
+import static co.tapizadosmiura.util.CamposFormulario.entero;
+import static co.tapizadosmiura.util.CamposFormulario.texto;
+import static co.tapizadosmiura.util.CamposFormulario.textoLimitado;
+
 /**
  * Convierte los campos de texto del formulario de producto en un {@link Producto}
  * y valida las reglas de negocio de CU07 y las restricciones de la tabla.
@@ -25,37 +30,13 @@ public final class ProductoValidador {
     private ProductoValidador() {
     }
 
-    /** Resultado de la validación: el producto armado y los errores por campo. */
-    public static final class Resultado {
-        private final Producto producto;
-        private final Map<String, String> errores;
-
-        Resultado(Producto producto, Map<String, String> errores) {
-            this.producto = producto;
-            this.errores = errores;
-        }
-
-        public Producto getProducto() {
-            return producto;
-        }
-
-        /** @return mensajes de error indexados por nombre del campo (vacío si todo es válido) */
-        public Map<String, String> getErrores() {
-            return errores;
-        }
-
-        public boolean esValido() {
-            return errores.isEmpty();
-        }
-    }
-
     /**
      * Valida los datos enviados desde el formulario.
      *
      * @param campos valores del formulario; las claves son los atributos {@code name} de los inputs
-     * @return producto (aunque tenga errores, para volver a llenar el formulario) y errores
+     * @return producto armado (aunque tenga errores, para volver a llenar el formulario) y errores
      */
-    public static Resultado validar(Map<String, String> campos) {
+    public static ResultadoValidacion<Producto> validar(Map<String, String> campos) {
         Map<String, String> errores = new LinkedHashMap<>();
         Producto p = new Producto();
 
@@ -97,10 +78,7 @@ public final class ProductoValidador {
         }
 
         // Opcionales
-        p.setDescripcion(texto(campos, "descripcion"));
-        if (p.getDescripcion() != null && p.getDescripcion().length() > DESCRIPCION_MAXIMA) {
-            errores.put("descripcion", "La descripción admite máximo " + DESCRIPCION_MAXIMA + " caracteres.");
-        }
+        p.setDescripcion(textoLimitado(campos, "descripcion", DESCRIPCION_MAXIMA, errores));
         p.setEstilo(textoLimitado(campos, "estilo", 60, errores));
         p.setColor(textoLimitado(campos, "color", 60, errores));
         p.setMaterialTapiz(textoLimitado(campos, "materialTapiz", 80, errores));
@@ -126,55 +104,7 @@ public final class ProductoValidador {
         p.setRequiereArmado(campos.containsKey("requiereArmado"));
         p.setEstado(campos.containsKey("estado"));
 
-        return new Resultado(p, errores);
-    }
-
-    // ------------------------------------------------------------------
-    // Conversión de texto a tipos
-    // ------------------------------------------------------------------
-
-    /** Texto sin espacios sobrantes; {@code null} si viene vacío. */
-    private static String texto(Map<String, String> campos, String nombre) {
-        String valor = campos.get(nombre);
-        if (valor == null) {
-            return null;
-        }
-        valor = valor.trim();
-        return valor.isEmpty() ? null : valor;
-    }
-
-    private static String textoLimitado(Map<String, String> campos, String nombre, int maximo,
-                                        Map<String, String> errores) {
-        String valor = texto(campos, nombre);
-        if (valor != null && valor.length() > maximo) {
-            errores.put(nombre, "Máximo " + maximo + " caracteres.");
-        }
-        return valor;
-    }
-
-    private static Integer entero(Map<String, String> campos, String nombre) {
-        String valor = texto(campos, nombre);
-        if (valor == null) {
-            return null;
-        }
-        try {
-            return Integer.valueOf(valor);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    /** Acepta coma o punto como separador decimal (ej. 62,2 o 62.2). */
-    private static BigDecimal decimal(Map<String, String> campos, String nombre) {
-        String valor = texto(campos, nombre);
-        if (valor == null) {
-            return null;
-        }
-        try {
-            return new BigDecimal(valor.replace(',', '.'));
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        return new ResultadoValidacion<>(p, errores);
     }
 
     /** Medida opcional: si se escribe, debe ser positiva (CHECK ck_producto_dimensiones). */

@@ -10,8 +10,8 @@
 
     <nav class="menu-admin" aria-label="Módulos del panel">
         <a href="${ctx}/admin/productos" class="${seccion == 'catalogo' ? 'activo' : ''}">Gestor de catálogo</a>
-        <span class="pendiente" title="Disponible en la siguiente entrega">Galería de trabajos</span>
-        <span class="pendiente" title="Disponible en la siguiente entrega">Información del negocio</span>
+        <a href="${ctx}/admin/trabajos" class="${seccion == 'galeria' ? 'activo' : ''}">Galería de trabajos</a>
+        <a href="${ctx}/admin/informacion" class="${seccion == 'informacion' ? 'activo' : ''}">Información del negocio</a>
     </nav>
 
     <div class="usuario-admin">
