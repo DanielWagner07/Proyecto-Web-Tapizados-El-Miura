@@ -17,7 +17,7 @@
     <packaging>war</packaging>
 
     <name>Tapizados El Miura</name>
-    <description>Catálogo, galería de trabajos y panel administrador de Tapizados El Miura.</description>
+    <description>Catálogo, galería de trabajos, panel administrador y servicios web (API JSON) de Tapizados El Miura.</description>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
@@ -61,6 +61,13 @@
             <version>0.4</version>
         </dependency>
 
+        <!-- Gson: convierte objetos Java a JSON y viceversa en los servicios web (/api/...) -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.13.1</version>
+        </dependency>
+
         <!-- Pruebas unitarias -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -71,7 +78,7 @@
     </dependencies>
 
     <build>
-        <!-- Nombre del WAR = ruta de la aplicación: http://localhost:8080/tapizados-miura/ -->
+        <!-- Nombre del WAR = ruta de la aplicación: http://localhost:8081/tapizados-miura/ -->
         <finalName>tapizados-miura</finalName>
         <plugins>
             <plugin>

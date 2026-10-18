@@ -11,7 +11,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Acceso a datos de las tablas {@code trabajo} y {@code trabajo_imagen}
@@ -34,6 +36,17 @@ public class TrabajoDAO {
             SQL_SELECT_BASE + "WHERE (? = '' OR t.tipo = ?) ORDER BY t.estado DESC, t.creado_en DESC, t.id_trabajo DESC";
 
     private static final String SQL_BUSCAR_POR_ID = SQL_SELECT_BASE + "WHERE t.id_trabajo = ?";
+
+    /** Galería pública (RF05 / CU06): solo trabajos visibles, los más recientes primero. */
+    private static final String SQL_LISTAR_PUBLICOS =
+            SQL_SELECT_BASE + "WHERE t.estado = TRUE AND (? = '' OR t.tipo = ?) "
+            + "ORDER BY t.creado_en DESC, t.id_trabajo DESC";
+
+    /** Fotos adicionales de todos los trabajos visibles, en una sola consulta. */
+    private static final String SQL_FOTOS_PUBLICAS =
+            "SELECT ti.id_trabajo_imagen, ti.id_trabajo, ti.ruta, ti.texto_alternativo, ti.orden "
+            + "FROM trabajo_imagen ti JOIN trabajo t ON t.id_trabajo = ti.id_trabajo "
+            + "WHERE t.estado = TRUE AND (? = '' OR t.tipo = ?) ORDER BY ti.id_trabajo, ti.orden";
 
     private static final String SQL_FOTOS =
             "SELECT id_trabajo_imagen, id_trabajo, ruta, texto_alternativo, orden "
@@ -90,6 +103,58 @@ public class TrabajoDAO {
     }
 
     /**
+     * Galería pública: trabajos visibles con todas sus fotos adicionales.
+     *
+     * <p>Las fotos se traen en una segunda consulta para todos los trabajos a la
+     * vez, en lugar de una consulta por trabajo.</p>
+     *
+     * @param tipo "restauracion", "colaboracion" o vacío para todos
+     * @return trabajos visibles, los más recientes primero
+     * @throws SQLException si falla la consulta
+     */
+    public List<Trabajo> listarPublicos(String tipo) throws SQLException {
+        String filtro = tipo == null ? "" : tipo;
+        Map<Integer, Trabajo> porId = new LinkedHashMap<>();
+        try (Connection con = Conexion.obtener()) {
+            try (PreparedStatement ps = con.prepareStatement(SQL_LISTAR_PUBLICOS)) {
+                ps.setString(1, filtro);
+                ps.setString(2, filtro);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Trabajo trabajo = mapear(rs);
+                        porId.put(trabajo.getIdTrabajo(), trabajo);
+                    }
+                }
+            }
+            try (PreparedStatement ps = con.prepareStatement(SQL_FOTOS_PUBLICAS)) {
+                ps.setString(1, filtro);
+                ps.setString(2, filtro);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Trabajo trabajo = porId.get(rs.getInt("id_trabajo"));
+                        if (trabajo != null) {
+                            trabajo.getFotos().add(mapearFoto(rs));
+                        }
+                    }
+                }
+            }
+        }
+        return new ArrayList<>(porId.values());
+    }
+
+    /**
+     * Trabajo visible en la galería pública, con sus fotos.
+     *
+     * @param idTrabajo identificador del trabajo
+     * @return el trabajo, o {@code null} si no existe o está oculto
+     * @throws SQLException si falla la consulta
+     */
+    public Trabajo buscarPublicoPorId(int idTrabajo) throws SQLException {
+        Trabajo trabajo = buscarPorId(idTrabajo);
+        return trabajo != null && trabajo.isEstado() ? trabajo : null;
+    }
+
+    /**
      * Busca un trabajo con todas sus fotos adicionales.
      *
      * @param idTrabajo identificador del trabajo
@@ -112,13 +177,7 @@ public class TrabajoDAO {
                 ps.setInt(1, idTrabajo);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        TrabajoImagen foto = new TrabajoImagen();
-                        foto.setIdTrabajoImagen(rs.getInt("id_trabajo_imagen"));
-                        foto.setIdTrabajo(rs.getInt("id_trabajo"));
-                        foto.setRuta(rs.getString("ruta"));
-                        foto.setTextoAlternativo(rs.getString("texto_alternativo"));
-                        foto.setOrden(rs.getInt("orden"));
-                        trabajo.getFotos().add(foto);
+                        trabajo.getFotos().add(mapearFoto(rs));
                     }
                 }
             }
@@ -307,6 +366,16 @@ public class TrabajoDAO {
         ps.setString(i++, t.getImagenDespues());
         ps.setBoolean(i++, t.isEstado());
         return i;
+    }
+
+    private TrabajoImagen mapearFoto(ResultSet rs) throws SQLException {
+        TrabajoImagen foto = new TrabajoImagen();
+        foto.setIdTrabajoImagen(rs.getInt("id_trabajo_imagen"));
+        foto.setIdTrabajo(rs.getInt("id_trabajo"));
+        foto.setRuta(rs.getString("ruta"));
+        foto.setTextoAlternativo(rs.getString("texto_alternativo"));
+        foto.setOrden(rs.getInt("orden"));
+        return foto;
     }
 
     private Trabajo mapear(ResultSet rs) throws SQLException {

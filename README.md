@@ -1,17 +1,20 @@
 # Tapizados El Miura – Plataforma web
 
 Sitio web comercial de Tapizados El Miura (Caucasia, Antioquia): catálogo de muebles,
-galería de restauraciones y panel administrador para gestionar el contenido.
+galería de restauraciones, cotizaciones por WhatsApp y panel administrador para gestionar
+el contenido.
 
 Proyecto web Java (Jakarta EE 10: Servlets + JSP) que se despliega en Apache Tomcat
-y usa una base de datos MySQL.
+y usa una base de datos MySQL. Expone servicios web en JSON (`/api/...`) que consume el
+sitio público; están documentados en [`docs/API.md`](docs/API.md).
 
 ## Requisitos
 
 - JDK 17 o superior
 - Apache Tomcat 10.1 u 11
-- MySQL 8.0.16 o superior
+- MySQL 8.0.16 o superior (o el MariaDB de XAMPP)
 - Git
+- Postman (opcional, para probar la API)
 
 Maven no necesita instalarse: `mvnw.cmd` lo descarga la primera vez.
 
@@ -20,6 +23,9 @@ Maven no necesita instalarse: `mvnw.cmd` lo descarga la primera vez.
 1. **Base de datos.** Ejecuta en MySQL, en este orden, los scripts del repositorio de la BD:
    - `01_esquema.sql`: crea la base `tapizados_miura` con tablas, restricciones y vistas.
    - `02_datos_prueba.sql`: carga datos de ejemplo y el administrador inicial.
+   - `03_datos_faltantes (Redes sociales).sql`: agrega Facebook y TikTok a la información
+     del negocio. Se puede ejecutar sobre una BD con datos reales: no borra nada y, si las
+     claves ya existen, no hace nada.
 2. **Conexión.** Revisa usuario y contraseña de MySQL en `src/main/resources/db.properties`.
 3. **Tomcat.** Se usa Tomcat 11 en el puerto 8081. El puerto 8080 lo ocupa el Tomcat 8.5
    de XAMPP, que no es compatible con este proyecto. Si tu Tomcat está en otra carpeta,
@@ -42,7 +48,7 @@ Usuario de prueba (creado por `02_datos_prueba.sql`, solo para desarrollo):
 
 ## Comandos útiles
 
-- `mvnw.cmd test`: ejecuta las pruebas unitarias.
+- `mvnw.cmd test`: ejecuta las pruebas unitarias (44 pruebas).
 - `mvnw.cmd clean package`: genera `target/tapizados-miura.war`.
 
 ## Estructura del código
@@ -50,11 +56,16 @@ Usuario de prueba (creado por `02_datos_prueba.sql`, solo para desarrollo):
 ```
 src/main/java/co/tapizadosmiura/
 ├── config/        Conexion: abre conexiones JDBC con los datos de db.properties
-├── modelo/        Clases de dominio: Producto, Trabajo, InformacionNegocio...
-├── dao/           Consultas SQL por tabla (ProductoDAO, TrabajoDAO, InformacionNegocioDAO...)
-├── controlador/   Servlets: reciben las peticiones GET/POST y eligen la vista
-├── filtro/        AutenticacionFiltro: protege las rutas /admin/*
-└── util/          Validación de formularios, contraseñas e imágenes
+├── modelo/        Clases de dominio: Producto, Trabajo, Cotizacion, InformacionNegocio...
+├── dao/           Consultas SQL por tabla (ProductoDAO, TrabajoDAO, CotizacionDAO...)
+├── controlador/   Servlets del panel: reciben las peticiones GET/POST y eligen la vista JSP
+├── api/           Servicios web en JSON (ver docs/API.md)
+│   ├── publico/   Catálogo, galería, información y cotizaciones
+│   ├── auth/      Inicio y cierre de sesión
+│   ├── admin/     Gestión de productos, trabajos, información y cotizaciones
+│   └── dto/       Formato de las respuestas JSON
+├── filtro/        AutenticacionFiltro (/admin/*) y ApiAutenticacionFiltro (/api/admin/*)
+└── util/          Validaciones, contraseñas, imágenes y mensaje de WhatsApp
 src/main/webapp/
 ├── *.html, css/, js/, img/   Sitio público
 ├── admin/css/                Estilos del panel
@@ -62,7 +73,37 @@ src/main/webapp/
     ├── web.xml               Configuración general (UTF-8, sesión, carpeta de imágenes)
     └── vistas/admin/         Páginas JSP del panel (no accesibles directamente)
 src/test/java/                Pruebas unitarias (JUnit 5)
+docs/
+├── API.md                                 Documentación de cada servicio web
+├── TapizadosMiura-API.postman_collection.json   Colección de Postman con pruebas automáticas
+├── pruebas-AA2.md                         Registro de pruebas del panel (servlets y JSP)
+└── pruebas-AA5.md                         Registro de pruebas de la API
 ```
+
+## Servicios web (API)
+
+La API responde en JSON bajo `http://localhost:8081/tapizados-miura/api/`. Resumen:
+
+- **Públicos** (sin sesión):
+  - `GET /api/categorias`, `GET /api/servicios` y `GET /api/informacion`.
+  - `GET /api/productos?categoria=&q=` y `GET /api/productos/{id}`.
+  - `GET /api/trabajos?tipo=` y `GET /api/trabajos/{id}`.
+  - `POST /api/cotizaciones`: registra el carrito y devuelve el enlace de WhatsApp.
+- **Autenticación:** `POST /api/auth/login`, `POST /api/auth/logout` y `GET /api/auth/sesion`.
+- **Administración** (responden 401 sin sesión):
+  - `/api/admin/productos`: consultar, crear, editar, y mostrar u ocultar.
+  - `/api/admin/trabajos`: consultar, mostrar u ocultar, y eliminar.
+  - `/api/admin/informacion`: consultar y actualizar.
+  - `/api/admin/cotizaciones`: consultar y cambiar el estado.
+
+Para probarla:
+
+1. Enciende MySQL y Tomcat 11 (`iniciar-servidor.bat`).
+2. En Postman, importa `docs/TapizadosMiura-API.postman_collection.json`.
+3. Ejecuta la colección completa con el **Runner**. Las peticiones van en orden: la de login
+   guarda la sesión para las de administración.
+
+Formato de errores, códigos HTTP, reglas y ejemplos de cada servicio: [`docs/API.md`](docs/API.md).
 
 ## Panel administrador
 
@@ -89,6 +130,9 @@ Reglas:
 - La foto es obligatoria al crear un producto: JPG, PNG o WEBP de máximo 5 MB.
 - Los productos no se eliminan, se ocultan (borrado lógico). Así se conservan las
   cotizaciones que ya los incluyen.
+- Un producto sin foto no puede quedar visible. Solo pasa con los productos creados por la
+  API, que nacen ocultos: en el listado aparecen con la etiqueta "Sin foto" y se publican
+  después de subirles la foto al editarlos.
 
 ### Galería de trabajos (CU08)
 

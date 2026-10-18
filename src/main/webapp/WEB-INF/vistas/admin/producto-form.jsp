@@ -160,7 +160,7 @@
                     <img class="vista-previa" src="${ctx}/${producto.imagenPrincipal}" alt="Foto actual del producto">
                 </c:if>
                 <div>
-                    <label for="imagen">${esNuevo ? 'Imagen *' : 'Cambiar imagen (opcional)'}</label>
+                    <label for="imagen">${esNuevo ? 'Imagen *' : (empty producto.imagenPrincipal ? 'Imagen (necesaria para mostrarlo en el catálogo)' : 'Cambiar imagen (opcional)')}</label>
                     <input type="file" id="imagen" name="imagen" accept=".jpg,.jpeg,.png,.webp" ${esNuevo ? 'required' : ''}>
                     <small>JPG, PNG o WEBP, máximo 5 MB.</small>
                     <small class="error">${errores.imagen}</small>

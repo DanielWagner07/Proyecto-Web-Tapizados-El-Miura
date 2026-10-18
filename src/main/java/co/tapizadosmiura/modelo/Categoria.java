@@ -10,6 +10,9 @@ public class Categoria {
     private String descripcion;
     private boolean estado;
 
+    /** Solo lectura: productos visibles de la categoría (lo calcula la consulta pública). */
+    private int totalProductos;
+
     public Categoria() {
     }
 
@@ -48,5 +51,13 @@ public class Categoria {
 
     public void setEstado(boolean estado) {
         this.estado = estado;
+    }
+
+    public int getTotalProductos() {
+        return totalProductos;
+    }
+
+    public void setTotalProductos(int totalProductos) {
+        this.totalProductos = totalProductos;
     }
 }

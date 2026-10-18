@@ -84,6 +84,10 @@
                                 <span class="etiqueta ${p.estado ? 'etiqueta-ok' : 'etiqueta-gris'}">
                                     ${p.estado ? 'Visible' : 'Oculto'}
                                 </span>
+                                <%-- Los productos creados por la API nacen sin foto y no se pueden mostrar hasta tenerla --%>
+                                <c:if test="${empty p.imagenPrincipal}">
+                                    <span class="etiqueta etiqueta-alerta">Sin foto</span>
+                                </c:if>
                             </td>
                             <td>
                                 <div class="acciones">

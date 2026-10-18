@@ -1,0 +1,2321 @@
+{
+  "info": {
+    "name": "Tapizados El Miura - API",
+    "description": "Servicios web de Tapizados El Miura (evidencia GA7-220501096-AA5-EV03). Documentación completa en docs/API.md.\n\nUso: inicie MySQL y Tomcat 11 (iniciar-servidor.bat o desplegar.bat), importe esta colección y ejecútela completa en orden con el Runner. Cada petición tiene pruebas automáticas.\n\nDatos esperados: los de la BD actual (producto 3 agotado, producto 5 y trabajo 5 ocultos). La colección deja los datos como estaban, salvo: el producto de prueba API-PRUEBA (oculto) y una cotización de prueba por ejecución, marcada como descartada.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081/tapizados-miura"
+    },
+    {
+      "key": "correo",
+      "value": "admin@tapizadosmiura.com"
+    },
+    {
+      "key": "contrasena",
+      "value": "Miura2026*Cambiar"
+    },
+    {
+      "key": "idCotizacion",
+      "value": ""
+    },
+    {
+      "key": "idProductoNuevo",
+      "value": ""
+    },
+    {
+      "key": "horarioActual",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Servicios públicos",
+      "description": "Consultas que usa el sitio público. No requieren sesión.",
+      "item": [
+        {
+          "name": "Listar categorías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categorias"
+              ]
+            },
+            "description": "Categorías visibles con el total de productos visibles de cada una (RF01)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "const datos = pm.response.json();",
+                  "pm.test(\"Es una lista con totalProductos\", () => { pm.expect(datos).to.be.an(\"array\"); pm.expect(datos[0]).to.have.property(\"totalProductos\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar servicios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/servicios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "servicios"
+              ]
+            },
+            "description": "Servicios activos del taller (RF05)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Es una lista de servicios\", () => pm.expect(pm.response.json()[0]).to.have.keys(\"idServicio\", \"nombre\", \"descripcion\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Información del negocio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/informacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "informacion"
+              ]
+            },
+            "description": "Datos de contacto, horario, cobertura, políticas y redes, indexados por clave (CU09)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "const info = pm.response.json();",
+                  "pm.test(\"Trae el WhatsApp del negocio\", () => pm.expect(info.whatsapp.valor).to.match(/^\\d{10,15}$/));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Catálogo completo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            },
+            "description": "Productos visibles de categorías visibles (RF01). Cada producto trae su ficha técnica para los filtros."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Ningún producto oculto aparece (el 5 está oculto)\", () => pm.expect(lista.map(p => p.idProducto)).to.not.include(5));",
+                  "pm.test(\"Cada producto trae imagen y ficha\", () => lista.forEach(p => { pm.expect(p.imagen).to.be.a(\"string\"); pm.expect(p).to.have.property(\"ficha\"); }));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Catálogo filtrado por categoría",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos?categoria=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "categoria",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Solo productos de la categoría 1 (Sofás)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Todos son de la categoría 1\", () => pm.response.json().forEach(p => pm.expect(p.idCategoria).to.eql(1)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Búsqueda por texto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos?q=roman",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "roman"
+                }
+              ]
+            },
+            "description": "Busca en nombre, referencia y descripción."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Todos contienen 'roman'\", () => pm.response.json().forEach(p => pm.expect((p.nombre + p.referencia + (p.descripcion || \"\")).toLowerCase()).to.include(\"roman\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Categoría no numérica (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos?categoria=sofas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "categoria",
+                  "value": "sofas"
+                }
+              ]
+            },
+            "description": "Un parámetro inválido responde 400 con el detalle del campo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Indica el campo con error\", () => pm.expect(pm.response.json().errores).to.have.property(\"categoria\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle de producto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1"
+              ]
+            },
+            "description": "Ficha técnica completa con el carrusel de fotos (RF02)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "const p = pm.response.json();",
+                  "pm.test(\"Trae ficha e imágenes\", () => { pm.expect(p.ficha).to.be.an(\"object\"); pm.expect(p.imagenes).to.be.an(\"array\"); });",
+                  "pm.test(\"No expone datos de administración\", () => pm.expect(p).to.not.have.property(\"estado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Producto agotado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "3"
+              ]
+            },
+            "description": "Un producto con stock 0 se muestra con agotado = true (RF02 / CU03-2a)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Está marcado como agotado\", () => pm.expect(pm.response.json().agotado).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Producto oculto (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "5"
+              ]
+            },
+            "description": "Un producto oculto en el panel no se puede consultar desde el sitio público."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Id inválido (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "abc"
+              ]
+            },
+            "description": "El id de la ruta debe ser numérico."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Galería completa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trabajos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trabajos"
+              ]
+            },
+            "description": "Trabajos visibles con sus fotos (RF05)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Ningún trabajo oculto aparece (el 5 está oculto)\", () => pm.expect(pm.response.json().map(t => t.idTrabajo)).to.not.include(5));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Galería de restauraciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trabajos?tipo=restauracion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trabajos"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "restauracion"
+                }
+              ]
+            },
+            "description": "Página 'Tapizado y restauración': comparativos antes/después."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Todas traen antes y después\", () => pm.response.json().forEach(t => { pm.expect(t.tipo).to.eql(\"restauracion\"); pm.expect(t.imagenAntes).to.be.a(\"string\"); pm.expect(t.imagenDespues).to.be.a(\"string\"); }));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Galería de colaboraciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trabajos?tipo=colaboracion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trabajos"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "colaboracion"
+                }
+              ]
+            },
+            "description": "Página 'Renovaciones': proyectos para otros negocios con varias fotos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Todas son colaboraciones con fotos\", () => pm.response.json().forEach(t => { pm.expect(t.tipo).to.eql(\"colaboracion\"); pm.expect(t.fotos).to.be.an(\"array\"); }));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tipo de trabajo inválido (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trabajos?tipo=sofas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trabajos"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "sofas"
+                }
+              ]
+            },
+            "description": "Solo se admiten restauracion o colaboracion."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle de trabajo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trabajos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trabajos",
+                "1"
+              ]
+            },
+            "description": "Un trabajo visible con sus fotos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Es el trabajo 1\", () => pm.expect(pm.response.json().idTrabajo).to.eql(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Trabajo inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trabajos/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trabajos",
+                "99999"
+              ]
+            },
+            "description": "Un id que no existe responde 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Servicio inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/noexiste",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "noexiste"
+              ]
+            },
+            "description": "Cualquier ruta /api desconocida responde 404 en JSON."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Cotización y WhatsApp",
+      "description": "RF03 / RF04: el cliente envía su carrito y recibe el enlace de WhatsApp.",
+      "item": [
+        {
+          "name": "Crear cotización",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cotizaciones"
+              ]
+            },
+            "description": "Registra la cotización con los precios de la BD (el precio enviado se ignora) y devuelve el enlace wa.me. Incluye un producto agotado (3) para ver la marca 'sujeto a fabricación'.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"idProducto\": 1,\n      \"cantidad\": 1\n    },\n    {\n      \"idProducto\": 4,\n      \"cantidad\": 2\n    },\n    {\n      \"idProducto\": 3,\n      \"cantidad\": 1,\n      \"precio\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "const r = pm.response.json();",
+                  "pm.collectionVariables.set(\"idCotizacion\", r.datos.idCotizacion);",
+                  "pm.test(\"Usa el precio de la BD, no el enviado\", () => pm.expect(r.datos.items.find(i => i.idProducto === 3).precioUnitario).to.be.above(1));",
+                  "pm.test(\"El total es la suma de los subtotales\", () => pm.expect(r.datos.total).to.eql(r.datos.items.reduce((s, i) => s + i.subtotal, 0)));",
+                  "pm.test(\"Marca el producto agotado\", () => pm.expect(r.datos.items.find(i => i.idProducto === 3).agotado).to.eql(true));",
+                  "pm.test(\"El enlace es de wa.me y codifica espacios como %20 (RNF08)\", () => { pm.expect(r.datos.enlaceWhatsapp).to.match(/^https:\\/\\/wa\\.me\\/\\d+\\?text=/); pm.expect(r.datos.enlaceWhatsapp).to.not.include(\"+\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Carrito vacío (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cotizaciones"
+              ]
+            },
+            "description": "CU05-2a: sin productos no se puede enviar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Indica el error en items\", () => pm.expect(pm.response.json().errores).to.have.property(\"items\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cantidades inválidas (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cotizaciones"
+              ]
+            },
+            "description": "La cantidad debe ser un entero entre 1 y 10.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"idProducto\": 1,\n      \"cantidad\": 0\n    },\n    {\n      \"idProducto\": 2,\n      \"cantidad\": 2.5\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Detalla cada producto con error\", () => pm.expect(pm.response.json().errores).to.have.all.keys(\"items[0].cantidad\", \"items[1].cantidad\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Producto oculto o inexistente (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cotizaciones"
+              ]
+            },
+            "description": "Se rechaza la cotización completa e indica qué productos retirar del carrito.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"idProducto\": 5,\n      \"cantidad\": 1\n    },\n    {\n      \"idProducto\": 99999,\n      \"cantidad\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Indica los productos no disponibles\", () => pm.expect(pm.response.json().errores).to.have.all.keys(\"producto 5\", \"producto 99999\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cuerpo que no es JSON (415)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cotizaciones"
+              ]
+            },
+            "description": "El cuerpo debe enviarse con Content-Type: application/json."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 415\", () => pm.response.to.have.status(415));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "JSON mal escrito (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cotizaciones"
+              ]
+            },
+            "description": "Un JSON con errores de sintaxis responde 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"items\": [ {\"idProducto\": 1, ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Método no permitido (405)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cotizaciones"
+              ]
+            },
+            "description": "Las cotizaciones solo se crean con POST."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 405\", () => pm.response.to.have.status(405));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Autenticación",
+      "description": "RF06 / CU01. La cookie JSESSIONID que devuelve el login se reutiliza sola en las siguientes peticiones.",
+      "item": [
+        {
+          "name": "Administración sin sesión (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos"
+              ]
+            },
+            "description": "Los servicios /api/admin exigen sesión."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar sesión (sin iniciar)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "sesion"
+              ]
+            },
+            "description": "Siempre responde 200 e indica si hay sesión."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"No hay sesión\", () => pm.expect(pm.response.json().autenticado).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login con campos vacíos (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "CU01: correo y contraseña son obligatorios.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"\",\n  \"contrasena\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login con contraseña incorrecta (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Mismo mensaje si el correo no existe o la contraseña es incorrecta.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{correo}}\",\n  \"contrasena\": \"incorrecta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Inicia la sesión del administrador (BCrypt).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{correo}}\",\n  \"contrasena\": \"{{contrasena}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Sesión iniciada\", () => pm.expect(pm.response.json().datos.autenticado).to.eql(true));",
+                  "pm.test(\"No expone la contraseña\", () => pm.expect(pm.response.text()).to.not.include(\"contrasena\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar sesión (iniciada)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "sesion"
+              ]
+            },
+            "description": "Muestra quién inició sesión."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Hay sesión\", () => pm.expect(pm.response.json().autenticado).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Administración: productos",
+      "description": "CU07 / RF07. Los productos creados por la API quedan ocultos hasta subirles la foto desde el panel.",
+      "item": [
+        {
+          "name": "Listar todos los productos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos"
+              ]
+            },
+            "description": "Incluye los ocultos, con estado y tieneFoto."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Incluye el producto oculto 5\", () => pm.expect(pm.response.json().map(p => p.idProducto)).to.include(5));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle de un producto oculto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos",
+                "5"
+              ]
+            },
+            "description": "El administrador sí puede ver los ocultos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Está oculto\", () => pm.expect(pm.response.json().estado).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos"
+              ]
+            },
+            "description": "Crea el producto de prueba API-PRUEBA. Queda oculto aunque se envíe estado: true. Si ya existe de una ejecución anterior responde 409, y la colección sigue con el existente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"referencia\": \"API-PRUEBA\",\n  \"nombre\": \"Silla de prueba creada por la API\",\n  \"idCategoria\": 3,\n  \"descripcion\": \"Producto creado desde Postman para probar la API.\",\n  \"precio\": 350000,\n  \"stock\": 5,\n  \"color\": \"Gris\",\n  \"materialTapiz\": \"Tela antifluido\",\n  \"altoCm\": 95.5,\n  \"requiereArmado\": false,\n  \"estado\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201 (o 409 si ya existía)\", () => pm.expect(pm.response.code).to.be.oneOf([201, 409]));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "// Si existe de una ejecución anterior (409) se acepta y se busca su id en la siguiente petición",
+                  "if (pm.response.code === 409) { pm.test.skip(\"Ya existía de una ejecución anterior\", () => {}); }",
+                  "else { const p = pm.response.json().datos; pm.collectionVariables.set(\"idProductoNuevo\", p.idProducto);",
+                  "pm.test(\"Quedó oculto y sin foto\", () => { pm.expect(p.estado).to.eql(false); pm.expect(p.tieneFoto).to.eql(false); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar el producto de prueba",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos?q=API-PRUEBA",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "API-PRUEBA"
+                }
+              ]
+            },
+            "description": "Obtiene el id del producto de prueba para las siguientes peticiones."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "const p = pm.response.json().find(x => x.referencia === \"API-PRUEBA\");",
+                  "pm.test(\"Existe el producto de prueba\", () => pm.expect(p).to.be.an(\"object\"));",
+                  "pm.collectionVariables.set(\"idProductoNuevo\", p.idProducto);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Referencia repetida (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos"
+              ]
+            },
+            "description": "La referencia es única.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"referencia\": \"API-PRUEBA\",\n  \"nombre\": \"Duplicado\",\n  \"idCategoria\": 3,\n  \"precio\": 100,\n  \"stock\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Datos inválidos (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos"
+              ]
+            },
+            "description": "Mismas reglas del panel: precio mayor que cero, categoría existente, campos conocidos...",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"referencia\": \"\",\n  \"nombre\": \"Sin precio\",\n  \"idCategoria\": 999,\n  \"precio\": -1,\n  \"stock\": -2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Detalla los campos con error\", () => pm.expect(pm.response.json().errores).to.include.keys(\"referencia\", \"precio\", \"stock\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publicar producto sin foto (409)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos/{{idProductoNuevo}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos",
+                "{{idProductoNuevo}}",
+                "estado"
+              ]
+            },
+            "description": "Regla del proyecto: un producto sin foto no puede quedar visible.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar producto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos/{{idProductoNuevo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos",
+                "{{idProductoNuevo}}"
+              ]
+            },
+            "description": "Reemplaza todos los datos (los campos no enviados quedan vacíos).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"referencia\": \"API-PRUEBA\",\n  \"nombre\": \"Silla de prueba creada por la API\",\n  \"idCategoria\": 3,\n  \"descripcion\": \"Actualizada desde Postman.\",\n  \"precio\": 360000,\n  \"stock\": 4,\n  \"color\": \"Gris oscuro\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Guardó el nuevo precio\", () => pm.expect(pm.response.json().datos.precio).to.eql(360000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ocultar un producto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos/2/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos",
+                "2",
+                "estado"
+              ]
+            },
+            "description": "Oculta el producto 2 del catálogo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comprobar que el oculto no es público (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "2"
+              ]
+            },
+            "description": "El sitio público ya no lo muestra."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Volver a mostrar el producto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos/2/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos",
+                "2",
+                "estado"
+              ]
+            },
+            "description": "Deja el producto 2 como estaba.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Quedó visible\", () => pm.expect(pm.response.json().datos.estado).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Producto inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/productos/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "productos",
+                "99999"
+              ]
+            },
+            "description": "Un id que no existe responde 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Administración: trabajos",
+      "description": "CU08. Crear y editar exige subir fotos, por eso se hace en el panel; la API consulta, oculta y elimina.",
+      "item": [
+        {
+          "name": "Listar todos los trabajos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/trabajos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "trabajos"
+              ]
+            },
+            "description": "Incluye los ocultos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Incluye el trabajo oculto 5\", () => pm.expect(pm.response.json().map(t => t.idTrabajo)).to.include(5));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle de un trabajo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/trabajos/3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "trabajos",
+                "3"
+              ]
+            },
+            "description": "Trabajo con sus fotos y su estado."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ocultar un trabajo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/trabajos/1/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "trabajos",
+                "1",
+                "estado"
+              ]
+            },
+            "description": "Oculta el trabajo 1 de la galería.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Volver a mostrar el trabajo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/trabajos/1/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "trabajos",
+                "1",
+                "estado"
+              ]
+            },
+            "description": "Deja el trabajo 1 como estaba.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estado inválido (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/trabajos/1/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "trabajos",
+                "1",
+                "estado"
+              ]
+            },
+            "description": "El estado debe ser true o false.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"visible\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar trabajo inexistente (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/trabajos/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "trabajos",
+                "99999"
+              ]
+            },
+            "description": "Con un id real borra el trabajo, sus fotos y los archivos. Aquí se usa un id inexistente para no borrar datos reales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Administración: información del negocio",
+      "description": "CU09 / RF09.",
+      "item": [
+        {
+          "name": "Consultar información",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/informacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "informacion"
+              ]
+            },
+            "description": "Guarda el horario actual para devolverlo igual en la siguiente prueba."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.collectionVariables.set(\"horarioActual\", pm.response.json().horario.valor);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar con errores (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/informacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "informacion"
+              ]
+            },
+            "description": "Si un dato tiene error no se guarda ninguno.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"whatsapp\": \"312-abc\",\n  \"correo\": \"sin-arroba\",\n  \"instagram\": \"instagram.com/miura\",\n  \"noexiste\": \"x\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Detalla cada dato con error\", () => pm.expect(pm.response.json().errores).to.have.all.keys(\"whatsapp\", \"correo\", \"instagram\", \"noexiste\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar el horario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/informacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "informacion"
+              ]
+            },
+            "description": "Actualiza solo los datos enviados. Se envía el mismo horario para no cambiar los datos reales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"horario\": \"{{horarioActual}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Administración: cotizaciones",
+      "description": "Seguimiento de las cotizaciones recibidas por WhatsApp.",
+      "item": [
+        {
+          "name": "Listar cotizaciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/cotizaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "cotizaciones"
+              ]
+            },
+            "description": "Las más recientes primero, con totales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filtrar pendientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/cotizaciones?estado=pendiente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "cotizaciones"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "pendiente"
+                }
+              ]
+            },
+            "description": "Solo las pendientes."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Todas están pendientes\", () => pm.response.json().forEach(c => pm.expect(c.estado).to.eql(\"pendiente\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle de la cotización creada",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/cotizaciones/{{idCotizacion}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "cotizaciones",
+                "{{idCotizacion}}"
+              ]
+            },
+            "description": "La cotización creada en la carpeta 2, con sus productos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Trae los 3 productos\", () => pm.expect(pm.response.json().items).to.have.lengthOf(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cambiar estado",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/cotizaciones/{{idCotizacion}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "cotizaciones",
+                "{{idCotizacion}}",
+                "estado"
+              ]
+            },
+            "description": "Marca la cotización de prueba como descartada, con una nota interna.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"descartada\",\n  \"notaInterna\": \"Cotización de prueba generada desde Postman.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Quedó descartada\", () => pm.expect(pm.response.json().datos.estado).to.eql(\"descartada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estado inválido (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/cotizaciones/{{idCotizacion}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "cotizaciones",
+                "{{idCotizacion}}",
+                "estado"
+              ]
+            },
+            "description": "Solo pendiente, atendida, cerrada o descartada.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"vendida\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "8. Cerrar sesión",
+      "description": "",
+      "item": [
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Cierra la sesión (también la del panel)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Administración tras logout (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/cotizaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "cotizaciones"
+              ]
+            },
+            "description": "Sin sesión vuelve a responder 401."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

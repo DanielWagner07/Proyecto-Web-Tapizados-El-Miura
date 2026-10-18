@@ -24,6 +24,26 @@ public class InformacionNegocioDAO {
     private static final String SQL_ACTUALIZAR_VALOR =
             "UPDATE informacion_negocio SET valor = ? WHERE clave = ?";
 
+    private static final String SQL_BUSCAR_VALOR =
+            "SELECT valor FROM informacion_negocio WHERE clave = ?";
+
+    /**
+     * Valor de un dato puntual, por ejemplo el número de WhatsApp para las cotizaciones.
+     *
+     * @param clave clave del dato (ej. "whatsapp")
+     * @return el valor, o {@code null} si la clave no existe
+     * @throws SQLException si falla la consulta
+     */
+    public String buscarValor(String clave) throws SQLException {
+        try (Connection con = Conexion.obtener();
+             PreparedStatement ps = con.prepareStatement(SQL_BUSCAR_VALOR)) {
+            ps.setString(1, clave);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString("valor") : null;
+            }
+        }
+    }
+
     /**
      * Todos los datos del negocio, agrupados (contacto, horario, cobertura...).
      *

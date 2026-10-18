@@ -2,6 +2,7 @@ package co.tapizadosmiura.dao;
 
 import co.tapizadosmiura.config.Conexion;
 import co.tapizadosmiura.modelo.Producto;
+import co.tapizadosmiura.modelo.ProductoImagen;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +11,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Acceso a datos de las tablas {@code producto} y {@code producto_imagen}
@@ -19,6 +24,9 @@ import java.util.List;
  * <p>Los productos no se eliminan físicamente: un producto que ya aparece en
  * una cotización no puede borrarse (FK RESTRICT), así que se desactiva con
  * {@link #cambiarEstado(int, boolean)} y deja de verse en el sitio público.</p>
+ *
+ * <p>Las consultas "públicas" (usadas por la API del sitio) aplican la misma regla
+ * que la vista {@code v_catalogo_publico}: solo productos activos de categorías activas.</p>
  */
 public class ProductoDAO {
 
@@ -40,6 +48,23 @@ public class ProductoDAO {
             + "ORDER BY p.estado DESC, p.nombre";
 
     private static final String SQL_BUSCAR_POR_ID = SQL_SELECT_BASE + "WHERE p.id_producto = ?";
+
+    /** Regla de visibilidad del catálogo público (RF01), igual a la vista v_catalogo_publico. */
+    private static final String CONDICION_PUBLICO = "p.estado = TRUE AND c.estado = TRUE ";
+
+    private static final String SQL_LISTAR_PUBLICOS =
+            SQL_SELECT_BASE
+            + "WHERE " + CONDICION_PUBLICO
+            + "AND (? = 0 OR p.id_categoria = ?) "
+            + "AND (? = '' OR p.nombre LIKE ? OR p.referencia LIKE ? OR p.descripcion LIKE ?) "
+            + "ORDER BY p.nombre";
+
+    private static final String SQL_BUSCAR_PUBLICO_POR_ID =
+            SQL_SELECT_BASE + "WHERE p.id_producto = ? AND " + CONDICION_PUBLICO;
+
+    private static final String SQL_IMAGENES =
+            "SELECT id_producto_imagen, id_producto, ruta, texto_alternativo, orden "
+            + "FROM producto_imagen WHERE id_producto = ? ORDER BY orden";
 
     private static final String SQL_INSERTAR =
             "INSERT INTO producto (" + COLUMNAS_EDITABLES + ") "
@@ -73,7 +98,7 @@ public class ProductoDAO {
      */
     public List<Producto> listar(String busqueda) throws SQLException {
         String texto = busqueda == null ? "" : busqueda.trim();
-        String patron = "%" + texto + "%";
+        String patron = patronLike(texto);
         List<Producto> productos = new ArrayList<>();
         try (Connection con = Conexion.obtener();
              PreparedStatement ps = con.prepareStatement(SQL_LISTAR)) {
@@ -87,6 +112,110 @@ public class ProductoDAO {
             }
         }
         return productos;
+    }
+
+    /**
+     * Catálogo público (RF01 / CU02): productos visibles de categorías visibles.
+     *
+     * @param idCategoria categoría a filtrar; 0 = todas
+     * @param busqueda    texto a buscar en nombre, referencia o descripción; vacío = sin filtro
+     * @return productos ordenados por nombre
+     * @throws SQLException si falla la consulta
+     */
+    public List<Producto> listarPublicos(int idCategoria, String busqueda) throws SQLException {
+        String texto = busqueda == null ? "" : busqueda.trim();
+        String patron = patronLike(texto);
+        List<Producto> productos = new ArrayList<>();
+        try (Connection con = Conexion.obtener();
+             PreparedStatement ps = con.prepareStatement(SQL_LISTAR_PUBLICOS)) {
+            ps.setInt(1, idCategoria);
+            ps.setInt(2, idCategoria);
+            ps.setString(3, texto);
+            ps.setString(4, patron);
+            ps.setString(5, patron);
+            ps.setString(6, patron);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    productos.add(mapear(rs));
+                }
+            }
+        }
+        return productos;
+    }
+
+    /**
+     * Producto visible en el sitio público (RF02 / CU03).
+     *
+     * @param idProducto identificador del producto
+     * @return el producto, o {@code null} si no existe, está oculto o su categoría está oculta
+     * @throws SQLException si falla la consulta
+     */
+    public Producto buscarPublicoPorId(int idProducto) throws SQLException {
+        try (Connection con = Conexion.obtener();
+             PreparedStatement ps = con.prepareStatement(SQL_BUSCAR_PUBLICO_POR_ID)) {
+            ps.setInt(1, idProducto);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? mapear(rs) : null;
+            }
+        }
+    }
+
+    /**
+     * Productos visibles con los ids indicados; se usa al registrar una cotización
+     * para tomar el nombre, el precio y el stock reales de la BD.
+     *
+     * @param ids identificadores pedidos
+     * @return mapa id → producto; los ids inexistentes u ocultos no aparecen
+     * @throws SQLException si falla la consulta
+     */
+    public Map<Integer, Producto> buscarPublicosPorIds(Collection<Integer> ids) throws SQLException {
+        if (ids.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        String marcadores = String.join(", ", Collections.nCopies(ids.size(), "?"));
+        String sql = SQL_SELECT_BASE + "WHERE " + CONDICION_PUBLICO + "AND p.id_producto IN (" + marcadores + ")";
+        Map<Integer, Producto> productos = new LinkedHashMap<>();
+        try (Connection con = Conexion.obtener();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            int i = 1;
+            for (Integer id : ids) {
+                ps.setInt(i++, id);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Producto p = mapear(rs);
+                    productos.put(p.getIdProducto(), p);
+                }
+            }
+        }
+        return productos;
+    }
+
+    /**
+     * Todas las fotos de un producto, la principal primero (carrusel del detalle).
+     *
+     * @param idProducto producto dueño de las fotos
+     * @return fotos ordenadas (vacía si no tiene)
+     * @throws SQLException si falla la consulta
+     */
+    public List<ProductoImagen> listarImagenes(int idProducto) throws SQLException {
+        List<ProductoImagen> imagenes = new ArrayList<>();
+        try (Connection con = Conexion.obtener();
+             PreparedStatement ps = con.prepareStatement(SQL_IMAGENES)) {
+            ps.setInt(1, idProducto);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ProductoImagen imagen = new ProductoImagen();
+                    imagen.setIdProductoImagen(rs.getInt("id_producto_imagen"));
+                    imagen.setIdProducto(rs.getInt("id_producto"));
+                    imagen.setRuta(rs.getString("ruta"));
+                    imagen.setTextoAlternativo(rs.getString("texto_alternativo"));
+                    imagen.setOrden(rs.getInt("orden"));
+                    imagenes.add(imagen);
+                }
+            }
+        }
+        return imagenes;
     }
 
     /**
@@ -129,8 +258,12 @@ public class ProductoDAO {
      * Registra un producto con su imagen principal en una sola transacción:
      * si falla cualquiera de los dos INSERT no queda nada a medias.
      *
+     * <p>La API puede crear productos sin foto ({@code rutaImagen = null}); quedan
+     * ocultos hasta que se les sube la foto desde el panel.</p>
+     *
      * @param producto   datos validados del producto
-     * @param rutaImagen ruta relativa de la imagen ya guardada (ej. uploads/productos/x.jpg)
+     * @param rutaImagen ruta relativa de la imagen ya guardada (ej. uploads/productos/x.jpg),
+     *                   o {@code null} para crearlo sin foto
      * @return id generado para el producto
      * @throws SQLException si falla la operación (se revierte todo)
      */
@@ -147,11 +280,13 @@ public class ProductoDAO {
                         idGenerado = claves.getInt(1);
                     }
                 }
-                try (PreparedStatement ps = con.prepareStatement(SQL_INSERTAR_IMAGEN)) {
-                    ps.setInt(1, idGenerado);
-                    ps.setString(2, rutaImagen);
-                    ps.setString(3, producto.getNombre());
-                    ps.executeUpdate();
+                if (rutaImagen != null) {
+                    try (PreparedStatement ps = con.prepareStatement(SQL_INSERTAR_IMAGEN)) {
+                        ps.setInt(1, idGenerado);
+                        ps.setString(2, rutaImagen);
+                        ps.setString(3, producto.getNombre());
+                        ps.executeUpdate();
+                    }
                 }
                 con.commit();
                 return idGenerado;
@@ -212,6 +347,15 @@ public class ProductoDAO {
     // ------------------------------------------------------------------
     // Métodos de apoyo
     // ------------------------------------------------------------------
+
+    /**
+     * Patrón para LIKE: el texto escrito se busca tal cual, por eso se escapan
+     * los comodines % y _ (un usuario que busca "50%" no debe obtener todo).
+     */
+    private static String patronLike(String texto) {
+        String escapado = texto.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+        return "%" + escapado + "%";
+    }
 
     private void reemplazarImagenPrincipal(Connection con, Producto producto, String ruta) throws SQLException {
         int filas;

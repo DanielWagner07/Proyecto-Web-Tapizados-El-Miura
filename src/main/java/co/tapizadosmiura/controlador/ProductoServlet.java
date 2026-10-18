@@ -45,6 +45,10 @@ import static co.tapizadosmiura.util.ServletUtil.redirigirConAviso;
  *   <li>{@code estado}: activa o desactiva un producto ({@code id}, {@code activo}).</li>
  * </ul>
  *
+ * <p>Regla: un producto sin foto no puede quedar visible. Solo ocurre con los
+ * productos creados por la API ({@code POST /api/admin/productos}), que nacen
+ * ocultos y sin foto hasta que se les sube una aquí.</p>
+ *
  * <p>Después de cada POST exitoso se redirige al listado (patrón
  * Post/Redirect/Get) para que recargar la página no repita la operación.</p>
  */
@@ -170,6 +174,14 @@ public class ProductoServlet extends HttpServlet {
             errores.put("referencia", "Ya existe otro producto con esta referencia.");
         }
 
+        // Un producto sin foto no puede quedar visible (los creados por la API nacen sin foto)
+        if (!esNuevo && !traeImagen && producto.isEstado()) {
+            Producto actual = productoDAO.buscarPorId(idProducto);
+            if (actual != null && actual.getImagenPrincipal() == null) {
+                errores.putIfAbsent("imagen", "Suba una foto para mostrar el producto en el catálogo.");
+            }
+        }
+
         if (!errores.isEmpty()) {
             if (!esNuevo) {
                 // Conserva la foto actual en la vista previa del formulario
@@ -201,6 +213,14 @@ public class ProductoServlet extends HttpServlet {
             throws SQLException, IOException {
         int id = enteroPositivo(parametro(request, "id"));
         boolean activar = "true".equals(parametro(request, "activo"));
+        if (activar && id > 0) {
+            Producto actual = productoDAO.buscarPorId(id);
+            if (actual != null && actual.getImagenPrincipal() == null) {
+                redirigirConAviso(request, response, RUTA, "error",
+                        "\"" + actual.getNombre() + "\" no tiene foto. Edítelo y súbale una antes de mostrarlo.");
+                return;
+            }
+        }
         if (id > 0 && productoDAO.cambiarEstado(id, activar)) {
             redirigirConAviso(request, response, RUTA, "exito",
                     activar ? "Producto visible en el catálogo." : "Producto oculto del catálogo.");
