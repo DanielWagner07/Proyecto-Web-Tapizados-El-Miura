@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!--
+  Carrito de cotización (RF03 / RF04, CU04 / CU05).
+  Muestra lo que el cliente agregó (guardado en su navegador), actualiza los
+  precios con la API y envía la cotización: POST /api/cotizaciones devuelve
+  el enlace de WhatsApp con el mensaje listo (js/cotizacion.js).
+-->
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de cotización | Tapizados El Miura</title>
+    <meta name="description" content="Revisa los muebles de tu cotización y envíala por WhatsApp a Tapizados El Miura.">
+    <link rel="icon" href="img/favicon.png" type="image/png">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/cotizacion.css">
+    <script type="module" src="js/cotizacion.js"></script>
+</head>
+<body data-pagina="cotizacion">
+<a class="saltar" href="#contenido">Ir al contenido</a>
+<header id="encabezado" class="encabezado"></header>
+
+<main id="contenido" class="contenedor">
+    <nav class="migas" aria-label="Ubicación">
+        <ol>
+            <li><a href="index.html">Inicio</a></li>
+            <li aria-current="page">Carrito de cotización</li>
+        </ol>
+    </nav>
+
+    <div class="titulo-pagina">
+        <h1>Carrito de cotización</h1>
+        <span class="titulo-pagina__conteo" id="conteo"></span>
+    </div>
+
+    <!-- Confirmación de la última cotización enviada (se muestra al volver de WhatsApp) -->
+    <div id="confirmacion" hidden></div>
+
+    <div class="carrito" id="carrito">
+        <section aria-label="Muebles del carrito">
+            <ul class="carrito__lista" id="lista"></ul>
+        </section>
+
+        <aside class="resumen" aria-labelledby="titulo-resumen">
+            <h2 id="titulo-resumen">Resumen</h2>
+            <dl class="resumen__datos">
+                <div><dt>Muebles</dt><dd id="resumen-productos">0</dd></div>
+                <div><dt>Unidades</dt><dd id="resumen-unidades">0</dd></div>
+                <div class="resumen__total"><dt>Total estimado</dt><dd id="resumen-total">$ 0</dd></div>
+            </dl>
+            <p class="resumen__nota" id="nota-fabricacion" hidden>
+                Algunos muebles no tienen unidades suficientes: el taller los fabrica bajo pedido.
+            </p>
+            <button type="button" class="boton boton--whatsapp resumen__enviar" id="enviar" disabled>
+                Enviar cotización por WhatsApp
+            </button>
+            <p class="resumen__nota">
+                Se abre WhatsApp con el mensaje listo para el taller. El precio final y la entrega
+                se confirman en el chat; cotizar no te compromete a comprar.
+            </p>
+            <button type="button" class="boton boton--texto" id="vaciar">Vaciar carrito</button>
+        </aside>
+    </div>
+</main>
+
+<footer id="pie" class="pie"></footer>
+<div id="avisos" class="avisos" aria-live="polite"></div>
+<noscript><p class="contenedor">Para usar el carrito active JavaScript en su navegador.</p></noscript>
+</body>
+</html>

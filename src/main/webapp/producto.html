@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!--
+  Detalle de producto (prototipo 3, RF02 / CU03). Se abre como producto.html?id=<idProducto>.
+  Reemplaza a la antigua página fija sofa-comodo.html: ahora una sola página sirve
+  para cualquier producto, con los datos de GET /api/productos/{id} (js/producto.js).
+-->
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Producto | Tapizados El Miura</title>
+    <meta name="description" content="Ficha técnica, fotos y precio del mueble. Agrégalo al carrito y envía tu cotización por WhatsApp.">
+    <link rel="icon" href="img/favicon.png" type="image/png">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/producto.css">
+    <script type="module" src="js/producto.js"></script>
+</head>
+<body data-pagina="muebles">
+<a class="saltar" href="#contenido">Ir al contenido</a>
+<header id="encabezado" class="encabezado"></header>
+
+<main id="contenido" class="contenedor">
+    <nav class="migas" aria-label="Ubicación">
+        <ol id="migas">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="muebles.html">Muebles</a></li>
+        </ol>
+    </nav>
+
+    <!-- Se llena con los datos del producto; mientras tanto muestra bloques de carga -->
+    <article id="producto" class="producto" aria-busy="true">
+        <div class="producto__galeria esqueleto producto__cargando"></div>
+        <div class="producto__info">
+            <div class="esqueleto esqueleto--linea"></div>
+            <div class="esqueleto esqueleto--linea esqueleto--corta"></div>
+        </div>
+    </article>
+
+    <section class="seccion relacionados" id="relacionados" aria-labelledby="titulo-relacionados" hidden>
+        <h2 id="titulo-relacionados">También te puede interesar</h2>
+        <div class="rejilla-productos rejilla-productos--cuatro" id="lista-relacionados"></div>
+    </section>
+</main>
+
+<footer id="pie" class="pie"></footer>
+<div id="avisos" class="avisos" aria-live="polite"></div>
+<noscript><p class="contenedor">Para ver el producto active JavaScript en su navegador.</p></noscript>
+</body>
+</html>

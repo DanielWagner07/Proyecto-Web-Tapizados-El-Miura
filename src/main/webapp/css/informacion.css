@@ -1,270 +1,203 @@
-/* =====================
-   ESTILOS GENERALES
-   ===================== */
+/* =====================================================================
+   Información y contacto (informacion.html)
+   ===================================================================== */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ---------- Quiénes somos + tarjeta de contacto ---------- */
+.nosotros {
+    display: grid;
+    gap: 28px;
+    padding-top: 8px;
+    padding-bottom: 48px;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4ede4;
-    color: #2e241f;
+@media (min-width: 900px) {
+    .nosotros {
+        grid-template-columns: 1.3fr 1fr;
+        gap: 56px;
+        align-items: start;
+    }
 }
 
-a {
-    text-decoration: none;
-    color: inherit;
+.nosotros h1 {
+    font-size: clamp(2.6rem, 6vw, 4rem);
+    margin-bottom: 6px;
 }
 
-ul {
-    list-style: none;
+.nosotros__lema {
+    font-family: var(--letra-titulo);
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--rojo);
+    margin-bottom: 22px;
 }
 
-button,
-input {
-    font: inherit;
+.nosotros__trayectoria {
+    max-width: 62ch;
+    font-size: 1.08rem;
 }
 
-/* =====================
-   BARRA SUPERIOR
-   ===================== */
-
-.top-bar {
-    background-color: #f5f5f5;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.top-links {
-    display: flex;
-    gap: 15px;
-}
-
-.top-links a {
-    color: #666666;
-    font-size: 14px;
-}
-
-.top-links a:hover {
-    color: #c41e3a;
-}
-
-.link-rojo {
-    color: #c41e3a !important;
-    font-weight: bold;
-}
-
-.top-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.carrito {
-    font-size: 14px;
-    color: #333333;
-}
-
-.buscador {
-    display: flex;
-}
-
-.buscador input {
-    padding: 8px 12px;
-    border: 1px solid #dddddd;
-    border-radius: 4px 0 0 4px;
-    font-size: 14px;
-}
-
-.buscador button {
-    padding: 8px 12px;
-    background-color: #c41e3a;
-    border: none;
-    border-radius: 0 4px 4px 0;
-    cursor: pointer;
-}
-
-.icono-btn {
-    width: 25px;
-    height: 25px;
-}
-
-/* =====================
-   LOGO
-   ===================== */
-
-.logo-container {
-    text-align: center;
-    padding: 20px;
-    background-color: #ffffff;
-}
-
-.logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.logo-texto {
-    font-size: 28px;
-    font-weight: bold;
-    color: #333333;
-}
-
-.rojo {
-    color: #c41e3a;
-}
-
-/* =====================
-   MENU PRINCIPAL
-   ===================== */
-
-.menu-principal {
-    background-color: #333333;
-    padding: 0 20px;
-}
-
-.boton-menu {
-    display: none;
-    background-color: #c41e3a;
-    color: #ffffff;
-    border: none;
-    padding: 15px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-}
-
-.lista-menu {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-}
-
-.lista-menu li a {
-    display: block;
-    padding: 15px 10px;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.lista-menu li a:hover {
-    color: #c41e3a;
-}
-
-/* =====================
-   INFORMACION
-   ===================== */
-
-.pagina-informacion {
-    width: 100%;
-    padding: 0 0 60px;
-}
-
-.hero-negocio {
-    position: relative;
-    width: 100%;
-    height: 80vh;
-    overflow: hidden;
-}
-
-.hero-negocio img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.capa-hero {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, rgba(25, 18, 14, 0.78), rgba(25, 18, 14, 0.24));
-    color: #ffffff;
-    padding: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-}
-
-.subtitulo-hero {
-    font-size: 14px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-}
-
-.capa-hero h1 {
-    font-size: 52px;
-    margin-bottom: 16px;
-}
-
-.capa-hero p {
-    max-width: 620px;
-    font-size: 18px;
-    line-height: 1.7;
-}
-
-.contenido-informacion {
-    max-width: 1180px;
-    margin: 24px auto 0;
-    padding: 10px 34px 36px;
-}
-
-.encabezado-informacion {
-    margin-bottom: 18px;
-}
-
-.etiqueta {
-    color: #b45834;
-    font-size: 13px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+.nosotros__trayectoria .esqueleto {
     margin-bottom: 10px;
 }
 
-.encabezado-informacion h2 {
-    font-size: 34px;
-    color: #342721;
+/* La tarjeta de contacto es el elemento principal de la página */
+.tarjeta-contacto {
+    position: relative;
+    padding: 28px;
+    border-radius: 18px;
+    background: var(--tinta);
+    color: var(--blanco);
+    overflow: hidden;
 }
 
-.texto-principal {
+/* Franja naranja del espaldar del logo */
+.tarjeta-contacto::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: var(--naranja);
+}
+
+.tarjeta-contacto h2 {
+    font-size: 1.9rem;
+    margin-bottom: 16px;
+}
+
+.tarjeta-contacto__whatsapp {
+    width: 100%;
+    min-height: 54px;
+    font-size: 1.05rem;
+}
+
+.tarjeta-contacto__datos {
+    list-style: none;
+    margin: 22px 0 0;
+    padding: 0;
     display: grid;
+    gap: 16px;
+}
+
+.tarjeta-contacto__datos li {
+    display: flex;
     gap: 14px;
-    margin-bottom: 18px;
+    align-items: flex-start;
 }
 
-.texto-principal p,
-.datos-negocio p,
-.redes-negocio p,
-.mensaje-apoyo {
-    line-height: 1.8;
-    font-size: 17px;
-    color: #5a4b43;
+.tarjeta-contacto__datos svg {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin-top: 2px;
+    color: var(--naranja);
 }
 
-.datos-negocio {
-    padding-top: 14px;
-    border-top: 1px solid #e7d7c7;
+.tarjeta-contacto__titulo {
+    display: block;
+    font-size: 0.85rem;
+    color: #a39e98;
+}
+
+.tarjeta-contacto__datos a {
+    color: var(--blanco);
+    text-underline-offset: 3px;
+}
+
+/* ---------- Servicios ---------- */
+.lista-servicios {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
-    gap: 8px;
+    gap: 24px;
 }
 
-.redes-negocio {
-    padding-top: 22px;
-    margin-top: 22px;
-    border-top: 1px solid #e7d7c7;
+@media (min-width: 800px) {
+    .lista-servicios {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+    }
 }
 
-.redes-negocio h3 {
-    font-size: 24px;
-    margin-bottom: 12px;
-    color: #342721;
+.servicio-info {
+    padding-top: 16px;
+    border-top: 3px solid var(--rojo);
+}
+
+.servicio-info h3 {
+    font-size: 1.5rem;
+}
+
+.servicio-info p {
+    margin: 0;
+    color: var(--gris);
+}
+
+/* ---------- Cobertura y garantía ---------- */
+.politicas {
+    display: grid;
+    gap: 24px;
+}
+
+@media (min-width: 800px) {
+    .politicas {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+}
+
+.politica {
+    padding: 24px;
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+}
+
+.politica svg {
+    width: 34px;
+    height: 34px;
+    color: var(--rojo);
+    margin-bottom: 10px;
+}
+
+.politica h2 {
+    font-size: 1.6rem;
+}
+
+.politica p {
+    margin: 0;
+    color: var(--gris);
+}
+
+/* ---------- Redes ---------- */
+.redes {
+    padding-bottom: 24px;
+}
+
+.redes__lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.red {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border: 1px solid var(--tinta);
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.red:hover {
+    background: var(--tinta);
+    color: var(--blanco);
+}
+
+.red svg {
+    width: 22px;
+    height: 22px;
 }

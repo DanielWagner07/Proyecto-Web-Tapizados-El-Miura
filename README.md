@@ -5,8 +5,12 @@ galería de restauraciones, cotizaciones por WhatsApp y panel administrador para
 el contenido.
 
 Proyecto web Java (Jakarta EE 10: Servlets + JSP) que se despliega en Apache Tomcat
-y usa una base de datos MySQL. Expone servicios web en JSON (`/api/...`) que consume el
-sitio público; están documentados en [`docs/API.md`](docs/API.md).
+y usa una base de datos MySQL. Tiene tres partes:
+
+- **Sitio público** (HTML, CSS y JavaScript): toma todos sus datos de la API con `fetch()`.
+  Ver [`docs/frontend.md`](docs/frontend.md).
+- **Servicios web** en JSON (`/api/...`). Ver [`docs/API.md`](docs/API.md).
+- **Panel administrador** (servlets y JSP) en `/admin/...`.
 
 ## Requisitos
 
@@ -24,8 +28,9 @@ Maven no necesita instalarse: `mvnw.cmd` lo descarga la primera vez.
    - `01_esquema.sql`: crea la base `tapizados_miura` con tablas, restricciones y vistas.
    - `02_datos_prueba.sql`: carga datos de ejemplo y el administrador inicial.
    - `03_datos_faltantes (Redes sociales).sql`: agrega Facebook y TikTok a la información
-     del negocio. Se puede ejecutar sobre una BD con datos reales: no borra nada y, si las
-     claves ya existen, no hace nada.
+     del negocio y las categorías Sillas mecedoras, Juegos de sala y Mesas de centro. Se puede
+     ejecutar sobre una BD con datos reales: no borra nada y, si los datos ya existen, no
+     hace nada.
 2. **Conexión.** Revisa usuario y contraseña de MySQL en `src/main/resources/db.properties`.
 3. **Tomcat.** Se usa Tomcat 11 en el puerto 8081. El puerto 8080 lo ocupa el Tomcat 8.5
    de XAMPP, que no es compatible con este proyecto. Si tu Tomcat está en otra carpeta,
@@ -67,7 +72,11 @@ src/main/java/co/tapizadosmiura/
 ├── filtro/        AutenticacionFiltro (/admin/*) y ApiAutenticacionFiltro (/api/admin/*)
 └── util/          Validaciones, contraseñas, imágenes y mensaje de WhatsApp
 src/main/webapp/
-├── *.html, css/, js/, img/   Sitio público
+├── *.html                    Sitio público: index, muebles, producto, cotizacion,
+│                             restauraciones, renovaciones, informacion
+├── css/                      base.css (común) y una hoja por página
+├── js/                       Un script por página y js/comun/ (API, carrito, plantilla...)
+├── fonts/, img/              Fuentes Barlow, logo, ícono y la imagen "sin imagen"
 ├── admin/css/                Estilos del panel
 └── WEB-INF/
     ├── web.xml               Configuración general (UTF-8, sesión, carpeta de imágenes)
@@ -75,10 +84,26 @@ src/main/webapp/
 src/test/java/                Pruebas unitarias (JUnit 5)
 docs/
 ├── API.md                                 Documentación de cada servicio web
+├── frontend.md                            Estructura y estándares del sitio público
 ├── TapizadosMiura-API.postman_collection.json   Colección de Postman con pruebas automáticas
 ├── pruebas-AA2.md                         Registro de pruebas del panel (servlets y JSP)
-└── pruebas-AA5.md                         Registro de pruebas de la API
+├── pruebas-AA5.md                         Registro de pruebas de la API
+└── pruebas-AA4.md                         Registro de pruebas del sitio público
 ```
+
+## Sitio público
+
+- **Páginas:**
+  - Inicio, catálogo con filtros, ficha de producto y carrito de cotización.
+  - Tapizado y restauración, con un comparador de antes y después.
+  - Renovaciones para negocios e Información.
+- **Datos:** salen de la BD a través de la API; lo que se cambia en el panel se ve al instante.
+- **Carrito:** se guarda en el navegador. Al enviarlo, la cotización se registra y se abre
+  WhatsApp con el mensaje listo.
+- **Abrir el sitio:** siempre desde Tomcat (`http://localhost:8081/tapizados-miura/`), no
+  con Live Server, porque las páginas y la API deben estar en el mismo servidor.
+
+Detalles, estructura del código y estándares: [`docs/frontend.md`](docs/frontend.md).
 
 ## Servicios web (API)
 
@@ -128,6 +153,7 @@ Reglas:
 - El precio debe ser mayor que cero y el stock no puede ser negativo.
 - La referencia es única.
 - La foto es obligatoria al crear un producto: JPG, PNG o WEBP de máximo 5 MB.
+- Al cambiar la foto de un producto, el archivo anterior se borra del disco.
 - Los productos no se eliminan, se ocultan (borrado lógico). Así se conservan las
   cotizaciones que ya los incluyen.
 - Un producto sin foto no puede quedar visible. Solo pasa con los productos creados por la

@@ -6,7 +6,9 @@
 --%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <header class="barra-admin">
-    <a class="marca" href="${ctx}/admin/productos">TAPIZADOS <span>MIURA</span> <small>Panel</small></a>
+    <a class="marca" href="${ctx}/admin/productos">
+        <img src="${ctx}/img/logo-miura.png" alt="Tapizados El Miura" width="104" height="48"> <small>Panel</small>
+    </a>
 
     <nav class="menu-admin" aria-label="Módulos del panel">
         <a href="${ctx}/admin/productos" class="${seccion == 'catalogo' ? 'activo' : ''}">Gestor de catálogo</a>

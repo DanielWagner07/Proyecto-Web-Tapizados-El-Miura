@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Tapizados El Miura - API",
-    "description": "Servicios web de Tapizados El Miura (evidencia GA7-220501096-AA5-EV03). Documentación completa en docs/API.md.\n\nUso: inicie MySQL y Tomcat 11 (iniciar-servidor.bat o desplegar.bat), importe esta colección y ejecútela completa en orden con el Runner. Cada petición tiene pruebas automáticas.\n\nDatos esperados: los de la BD actual (producto 3 agotado, producto 5 y trabajo 5 ocultos). La colección deja los datos como estaban, salvo: el producto de prueba API-PRUEBA (oculto) y una cotización de prueba por ejecución, marcada como descartada.",
+    "description": "Servicios web de Tapizados El Miura (evidencia GA7-220501096-AA5-EV03). Documentación completa en docs/API.md.\n\nUso: inicie MySQL y Tomcat 11 (iniciar-servidor.bat o desplegar.bat), importe esta colección y ejecútela completa en orden con el Runner. Cada petición tiene pruebas automáticas.\n\nFunciona con los datos reales que tenga la BD: toma los ids de las primeras respuestas. Solo necesita al menos 2 productos y 1 trabajo visibles. La colección deja los datos como estaban, salvo: el producto de prueba API-PRUEBA (oculto) y una cotización de prueba por ejecución, marcada como descartada.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -16,6 +16,30 @@
     {
       "key": "contrasena",
       "value": "Miura2026*Cambiar"
+    },
+    {
+      "key": "idProducto",
+      "value": ""
+    },
+    {
+      "key": "idProducto2",
+      "value": ""
+    },
+    {
+      "key": "idCategoria",
+      "value": ""
+    },
+    {
+      "key": "idTrabajo",
+      "value": ""
+    },
+    {
+      "key": "totalPublicos",
+      "value": ""
+    },
+    {
+      "key": "totalTrabajosPublicos",
+      "value": ""
     },
     {
       "key": "idCotizacion",
@@ -156,8 +180,14 @@
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
                   "const lista = pm.response.json();",
-                  "pm.test(\"Ningún producto oculto aparece (el 5 está oculto)\", () => pm.expect(lista.map(p => p.idProducto)).to.not.include(5));",
-                  "pm.test(\"Cada producto trae imagen y ficha\", () => lista.forEach(p => { pm.expect(p.imagen).to.be.a(\"string\"); pm.expect(p).to.have.property(\"ficha\"); }));"
+                  "pm.test(\"Hay al menos dos productos visibles para las pruebas\", () => pm.expect(lista.length).to.be.at.least(2));",
+                  "pm.test(\"Cada producto trae imagen y ficha\", () => lista.forEach(p => { pm.expect(p.imagen).to.be.a(\"string\"); pm.expect(p).to.have.property(\"ficha\"); }));",
+                  "pm.test(\"No expone datos de administración\", () => lista.forEach(p => pm.expect(p).to.not.have.property(\"estado\")));",
+                  "// Ids reales que usan las peticiones siguientes (así la colección sirve con cualquier dato)",
+                  "pm.collectionVariables.set(\"idProducto\", lista[0].idProducto);",
+                  "pm.collectionVariables.set(\"idProducto2\", lista[1].idProducto);",
+                  "pm.collectionVariables.set(\"idCategoria\", lista[0].idCategoria);",
+                  "pm.collectionVariables.set(\"totalPublicos\", lista.length);"
                 ]
               }
             }
@@ -169,7 +199,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/productos?categoria=1",
+              "raw": "{{baseUrl}}/api/productos?categoria={{idCategoria}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -180,11 +210,11 @@
               "query": [
                 {
                   "key": "categoria",
-                  "value": "1"
+                  "value": "{{idCategoria}}"
                 }
               ]
             },
-            "description": "Solo productos de la categoría 1 (Sofás)."
+            "description": "Solo productos de la categoría del primer producto del catálogo."
           },
           "event": [
             {
@@ -194,7 +224,8 @@
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Todos son de la categoría 1\", () => pm.response.json().forEach(p => pm.expect(p.idCategoria).to.eql(1)));"
+                  "const cat = Number(pm.collectionVariables.get(\"idCategoria\"));",
+                  "pm.test(\"Todos son de la categoría pedida\", () => pm.response.json().forEach(p => pm.expect(p.idCategoria).to.eql(cat)));"
                 ]
               }
             }
@@ -206,7 +237,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/productos?q=roman",
+              "raw": "{{baseUrl}}/api/productos?q=a",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -217,7 +248,7 @@
               "query": [
                 {
                   "key": "q",
-                  "value": "roman"
+                  "value": "a"
                 }
               ]
             },
@@ -231,7 +262,7 @@
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Todos contienen 'roman'\", () => pm.response.json().forEach(p => pm.expect((p.nombre + p.referencia + (p.descripcion || \"\")).toLowerCase()).to.include(\"roman\")));"
+                  "pm.test(\"Todos contienen el texto buscado\", () => pm.response.json().forEach(p => pm.expect((p.nombre + p.referencia + (p.descripcion || \"\")).toLowerCase()).to.include(\"a\")));"
                 ]
               }
             }
@@ -280,14 +311,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/productos/1",
+              "raw": "{{baseUrl}}/api/productos/{{idProducto}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "productos",
-                "1"
+                "{{idProducto}}"
               ]
             },
             "description": "Ficha técnica completa con el carrusel de fotos (RF02)."
@@ -309,22 +340,22 @@
           ]
         },
         {
-          "name": "Producto agotado",
+          "name": "Indicador de agotado",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/productos/3",
+              "raw": "{{baseUrl}}/api/productos/{{idProducto2}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "productos",
-                "3"
+                "{{idProducto2}}"
               ]
             },
-            "description": "Un producto con stock 0 se muestra con agotado = true (RF02 / CU03-2a)."
+            "description": "agotado es true solo cuando el stock es 0 (RF02 / CU03-2a)."
           },
           "event": [
             {
@@ -334,29 +365,30 @@
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Está marcado como agotado\", () => pm.expect(pm.response.json().agotado).to.eql(true));"
+                  "const p = pm.response.json();",
+                  "pm.test(\"agotado coincide con el stock\", () => pm.expect(p.agotado).to.eql(p.stock === 0));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Producto oculto (404)",
+          "name": "Producto inexistente (404)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/productos/5",
+              "raw": "{{baseUrl}}/api/productos/99999",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "productos",
-                "5"
+                "99999"
               ]
             },
-            "description": "Un producto oculto en el panel no se puede consultar desde el sitio público."
+            "description": "Un producto que no existe (o que está oculto) responde 404. El caso de un producto oculto se prueba en la carpeta 4."
           },
           "event": [
             {
@@ -427,7 +459,11 @@
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Ningún trabajo oculto aparece (el 5 está oculto)\", () => pm.expect(pm.response.json().map(t => t.idTrabajo)).to.not.include(5));"
+                  "const trabajos = pm.response.json();",
+                  "pm.test(\"Hay al menos un trabajo visible para las pruebas\", () => pm.expect(trabajos.length).to.be.at.least(1));",
+                  "pm.test(\"No expone datos de administración\", () => trabajos.forEach(t => pm.expect(t).to.not.have.property(\"estado\")));",
+                  "pm.collectionVariables.set(\"idTrabajo\", trabajos[0].idTrabajo);",
+                  "pm.collectionVariables.set(\"totalTrabajosPublicos\", trabajos.length);"
                 ]
               }
             }
@@ -549,14 +585,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/trabajos/1",
+              "raw": "{{baseUrl}}/api/trabajos/{{idTrabajo}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "trabajos",
-                "1"
+                "{{idTrabajo}}"
               ]
             },
             "description": "Un trabajo visible con sus fotos."
@@ -569,7 +605,7 @@
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Es el trabajo 1\", () => pm.expect(pm.response.json().idTrabajo).to.eql(1));"
+                  "pm.test(\"Es el trabajo pedido\", () => pm.expect(pm.response.json().idTrabajo).to.eql(Number(pm.collectionVariables.get(\"idTrabajo\"))));"
                 ]
               }
             }
@@ -662,10 +698,10 @@
                 "cotizaciones"
               ]
             },
-            "description": "Registra la cotización con los precios de la BD (el precio enviado se ignora) y devuelve el enlace wa.me. Incluye un producto agotado (3) para ver la marca 'sujeto a fabricación'.",
+            "description": "Registra la cotización con los precios de la BD (el precio falso de 1 se ignora) y devuelve el enlace wa.me.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"items\": [\n    {\n      \"idProducto\": 1,\n      \"cantidad\": 1\n    },\n    {\n      \"idProducto\": 4,\n      \"cantidad\": 2\n    },\n    {\n      \"idProducto\": 3,\n      \"cantidad\": 1,\n      \"precio\": 1\n    }\n  ]\n}",
+              "raw": "{\n  \"items\": [\n    { \"idProducto\": {{idProducto}}, \"cantidad\": 1 },\n    { \"idProducto\": {{idProducto2}}, \"cantidad\": 2, \"precio\": 1 }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -683,9 +719,10 @@
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
                   "const r = pm.response.json();",
                   "pm.collectionVariables.set(\"idCotizacion\", r.datos.idCotizacion);",
-                  "pm.test(\"Usa el precio de la BD, no el enviado\", () => pm.expect(r.datos.items.find(i => i.idProducto === 3).precioUnitario).to.be.above(1));",
+                  "const id2 = Number(pm.collectionVariables.get(\"idProducto2\"));",
+                  "pm.test(\"Usa el precio de la BD, no el enviado\", () => pm.expect(r.datos.items.find(i => i.idProducto === id2).precioUnitario).to.be.above(1));",
                   "pm.test(\"El total es la suma de los subtotales\", () => pm.expect(r.datos.total).to.eql(r.datos.items.reduce((s, i) => s + i.subtotal, 0)));",
-                  "pm.test(\"Marca el producto agotado\", () => pm.expect(r.datos.items.find(i => i.idProducto === 3).agotado).to.eql(true));",
+                  "pm.test(\"Cada producto indica si está agotado o se fabrica bajo pedido\", () => r.datos.items.forEach(i => { pm.expect(i.agotado).to.be.a(\"boolean\"); pm.expect(i.sujetoAFabricacion).to.be.a(\"boolean\"); }));",
                   "pm.test(\"El enlace es de wa.me y codifica espacios como %20 (RNF08)\", () => { pm.expect(r.datos.enlaceWhatsapp).to.match(/^https:\\/\\/wa\\.me\\/\\d+\\?text=/); pm.expect(r.datos.enlaceWhatsapp).to.not.include(\"+\"); });"
                 ]
               }
@@ -783,7 +820,7 @@
           ]
         },
         {
-          "name": "Producto oculto o inexistente (400)",
+          "name": "Producto no disponible (400)",
           "request": {
             "method": "POST",
             "header": [
@@ -802,10 +839,10 @@
                 "cotizaciones"
               ]
             },
-            "description": "Se rechaza la cotización completa e indica qué productos retirar del carrito.",
+            "description": "Si un producto no existe o está oculto se rechaza toda la cotización e indica cuál retirar del carrito.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"items\": [\n    {\n      \"idProducto\": 5,\n      \"cantidad\": 1\n    },\n    {\n      \"idProducto\": 99999,\n      \"cantidad\": 1\n    }\n  ]\n}",
+              "raw": "{\n  \"items\": [\n    { \"idProducto\": {{idProducto}}, \"cantidad\": 1 },\n    { \"idProducto\": 99999, \"cantidad\": 1 }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -821,7 +858,7 @@
                 "exec": [
                   "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Indica los productos no disponibles\", () => pm.expect(pm.response.json().errores).to.have.all.keys(\"producto 5\", \"producto 99999\"));"
+                  "pm.test(\"Indica el producto no disponible\", () => pm.expect(pm.response.json().errores).to.have.all.keys(\"producto 99999\"));"
                 ]
               }
             }
@@ -1201,19 +1238,21 @@
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Incluye el producto oculto 5\", () => pm.expect(pm.response.json().map(p => p.idProducto)).to.include(5));"
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Cada producto trae estado y tieneFoto\", () => lista.forEach(p => { pm.expect(p.estado).to.be.a(\"boolean\"); pm.expect(p.tieneFoto).to.be.a(\"boolean\"); }));",
+                  "pm.test(\"Incluye al menos los productos públicos\", () => pm.expect(lista.length).to.be.at.least(Number(pm.collectionVariables.get(\"totalPublicos\"))));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Detalle de un producto oculto",
+          "name": "Detalle de un producto",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/productos/5",
+              "raw": "{{baseUrl}}/api/admin/productos/{{idProducto}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1221,10 +1260,10 @@
                 "api",
                 "admin",
                 "productos",
-                "5"
+                "{{idProducto}}"
               ]
             },
-            "description": "El administrador sí puede ver los ocultos."
+            "description": "El administrador ve el producto con su estado."
           },
           "event": [
             {
@@ -1234,7 +1273,7 @@
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Está oculto\", () => pm.expect(pm.response.json().estado).to.eql(false));"
+                  "pm.test(\"Trae el estado de visibilidad\", () => pm.expect(pm.response.json().estado).to.eql(true));"
                 ]
               }
             }
@@ -1525,7 +1564,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/productos/2/estado",
+              "raw": "{{baseUrl}}/api/admin/productos/{{idProducto2}}/estado",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1533,11 +1572,11 @@
                 "api",
                 "admin",
                 "productos",
-                "2",
+                "{{idProducto2}}",
                 "estado"
               ]
             },
-            "description": "Oculta el producto 2 del catálogo.",
+            "description": "Oculta un producto visible del catálogo.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": false\n}",
@@ -1567,14 +1606,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/productos/2",
+              "raw": "{{baseUrl}}/api/productos/{{idProducto2}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "productos",
-                "2"
+                "{{idProducto2}}"
               ]
             },
             "description": "El sitio público ya no lo muestra."
@@ -1603,7 +1642,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/productos/2/estado",
+              "raw": "{{baseUrl}}/api/admin/productos/{{idProducto2}}/estado",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1611,11 +1650,11 @@
                 "api",
                 "admin",
                 "productos",
-                "2",
+                "{{idProducto2}}",
                 "estado"
               ]
             },
-            "description": "Deja el producto 2 como estaba.",
+            "description": "Deja el producto como estaba.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": true\n}",
@@ -1704,7 +1743,9 @@
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Incluye el trabajo oculto 5\", () => pm.expect(pm.response.json().map(t => t.idTrabajo)).to.include(5));"
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Cada trabajo trae su estado\", () => lista.forEach(t => pm.expect(t.estado).to.be.a(\"boolean\")));",
+                  "pm.test(\"Incluye al menos los trabajos públicos\", () => pm.expect(lista.length).to.be.at.least(Number(pm.collectionVariables.get(\"totalTrabajosPublicos\"))));"
                 ]
               }
             }
@@ -1716,7 +1757,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/trabajos/3",
+              "raw": "{{baseUrl}}/api/admin/trabajos/{{idTrabajo}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1724,7 +1765,7 @@
                 "api",
                 "admin",
                 "trabajos",
-                "3"
+                "{{idTrabajo}}"
               ]
             },
             "description": "Trabajo con sus fotos y su estado."
@@ -1753,7 +1794,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/trabajos/1/estado",
+              "raw": "{{baseUrl}}/api/admin/trabajos/{{idTrabajo}}/estado",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1761,11 +1802,11 @@
                 "api",
                 "admin",
                 "trabajos",
-                "1",
+                "{{idTrabajo}}",
                 "estado"
               ]
             },
-            "description": "Oculta el trabajo 1 de la galería.",
+            "description": "Oculta de la galería un trabajo visible.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": false\n}",
@@ -1783,7 +1824,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);"
+                  "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Quedó oculto\", () => pm.expect(pm.response.json().datos.estado).to.eql(false));"
                 ]
               }
             }
@@ -1800,7 +1842,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/trabajos/1/estado",
+              "raw": "{{baseUrl}}/api/admin/trabajos/{{idTrabajo}}/estado",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1808,11 +1850,11 @@
                 "api",
                 "admin",
                 "trabajos",
-                "1",
+                "{{idTrabajo}}",
                 "estado"
               ]
             },
-            "description": "Deja el trabajo 1 como estaba.",
+            "description": "Deja el trabajo como estaba.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": true\n}",
@@ -1847,7 +1889,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/trabajos/1/estado",
+              "raw": "{{baseUrl}}/api/admin/trabajos/{{idTrabajo}}/estado",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1855,7 +1897,7 @@
                 "api",
                 "admin",
                 "trabajos",
-                "1",
+                "{{idTrabajo}}",
                 "estado"
               ]
             },
@@ -2146,7 +2188,7 @@
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Responde JSON\", () => pm.response.to.be.json);",
-                  "pm.test(\"Trae los 3 productos\", () => pm.expect(pm.response.json().items).to.have.lengthOf(3));"
+                  "pm.test(\"Trae los 2 productos enviados\", () => pm.expect(pm.response.json().items).to.have.lengthOf(2));"
                 ]
               }
             }

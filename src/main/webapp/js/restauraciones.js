@@ -1,71 +1,110 @@
-// Variables principales para controlar mensajes y busqueda.
-var botonContacto = document.getElementById('botonContacto');
-var mensajeContacto = document.getElementById('mensajeContacto');
-var campoBusqueda = document.getElementById('campoBusqueda');
-var botonBuscar = document.getElementById('botonBuscar');
-var tarjetasRestauracion = document.querySelectorAll('.tarjeta-restauracion');
-var imagenesAmpliables = document.querySelectorAll('.imagen-ampliable');
-var visorImagen = document.getElementById('visorImagen');
-var imagenAmpliada = document.getElementById('imagenAmpliada');
-var cerrarVisor = document.getElementById('cerrarVisor');
+/**
+ * @file Tapizado y restauración (restauraciones.html), RF05 / CU06.
+ *
+ * Servicios que usa:
+ *   - GET /api/servicios                   servicios del taller
+ *   - GET /api/trabajos?tipo=restauracion  restauraciones visibles con antes, después y fotos
+ *   - GET /api/informacion                 WhatsApp para "Solicitar restauración" (vía la plantilla)
+ *
+ * Cada restauración se muestra con un comparador: el cliente desliza para ver
+ * el antes y el después (CU06, paso 3).
+ */
 
-// Funcion basica para buscar restauraciones por nombre.
-function buscarRestauracion() {
-    var textoBuscado = campoBusqueda.value.trim().toLowerCase();
-    var coincidencias = 0;
+import { obtener } from "./comun/api.js";
+import { crear, enlaceWhatsApp } from "./comun/formato.js";
+import { icono } from "./comun/iconos.js";
+import { dato, iniciarPlantilla, informacionNegocio } from "./comun/plantilla.js";
+import { miniaturaAmpliable } from "./comun/visor.js";
 
-    tarjetasRestauracion.forEach(function(tarjeta) {
-        var nombreRestauracion = tarjeta.dataset.nombre;
-        var mostrarTarjeta = nombreRestauracion.indexOf(textoBuscado) !== -1;
+iniciarPlantilla();
+cargarServicios();
+cargarRestauraciones();
+agregarBotonWhatsApp();
 
-        tarjeta.style.display = mostrarTarjeta ? 'block' : 'none';
-
-        if (mostrarTarjeta) {
-            coincidencias = coincidencias + 1;
-        }
-    });
-
-    if (textoBuscado === '') {
-        mensajeContacto.textContent = '';
-    } else if (coincidencias === 0) {
-        mensajeContacto.textContent = 'No encontramos una restauracion con ese nombre.';
-    } else {
-        mensajeContacto.textContent = 'Se encontraron ' + coincidencias + ' restauraciones.';
+async function cargarServicios() {
+    const lista = document.getElementById("servicios");
+    try {
+        const servicios = await obtener("servicios");
+        lista.replaceChildren(...servicios.map((s) => crear("li", { clase: "servicio" }, [
+            crear("h2", { clase: "servicio__nombre", texto: s.nombre }),
+            s.descripcion && crear("p", { texto: s.descripcion })
+        ])));
+    } catch {
+        lista.remove(); // la galería sigue siendo útil sin esta lista
     }
 }
 
-// Evento del boton de busqueda.
-if (botonBuscar) {
-    botonBuscar.addEventListener('click', buscarRestauracion);
-}
-
-// Evento sencillo para mostrar un mensaje de contacto.
-if (botonContacto) {
-    botonContacto.addEventListener('click', function() {
-        mensajeContacto.textContent = 'Gracias. Puedes continuar el proceso por WhatsApp o desde la seccion de contacto.';
-    });
-}
-
-// Evento para ampliar imagenes al hacer clic.
-imagenesAmpliables.forEach(function(imagen) {
-    imagen.addEventListener('click', function() {
-        imagenAmpliada.src = imagen.src;
-        imagenAmpliada.alt = imagen.alt;
-        visorImagen.classList.add('activo');
-    });
-});
-
-// Evento para cerrar el visor de imagenes.
-if (cerrarVisor) {
-    cerrarVisor.addEventListener('click', function() {
-        visorImagen.classList.remove('activo');
-    });
-}
-
-if (visorImagen) {
-    visorImagen.addEventListener('click', function(evento) {
-        if (evento.target === visorImagen) {
-            visorImagen.classList.remove('activo');
+async function cargarRestauraciones() {
+    const contenedor = document.getElementById("restauraciones");
+    contenedor.replaceChildren(crear("div", { clase: "esqueleto restauraciones__cargando" }));
+    try {
+        const trabajos = await obtener("trabajos?tipo=restauracion");
+        if (trabajos.length === 0) {
+            contenedor.replaceChildren(crear("p", { clase: "estado", texto: "Pronto publicaremos nuestras restauraciones." }));
+            return;
         }
+        contenedor.replaceChildren(...trabajos.map(restauracion));
+        // Si se llegó desde el inicio con #trabajo-N, se lleva la vista a ese trabajo
+        if (window.location.hash) {
+            document.querySelector(window.location.hash)?.scrollIntoView();
+        }
+    } catch (error) {
+        contenedor.replaceChildren(crear("p", { clase: "estado estado--error", texto: error.message }));
+    }
+}
+
+/** Una restauración: comparador antes/después, datos y fotos adicionales. */
+function restauracion(t) {
+    return crear("article", { clase: "restauracion", atributos: { id: `trabajo-${t.idTrabajo}` } }, [
+        comparador(t),
+        crear("div", { clase: "restauracion__texto" }, [
+            t.servicio && crear("p", { clase: "restauracion__servicio", texto: t.servicio }),
+            crear("h2", { clase: "restauracion__titulo", texto: t.titulo }),
+            t.cliente && crear("p", { clase: "restauracion__cliente", texto: `Cliente: ${t.cliente}` }),
+            t.descripcion && crear("p", { texto: t.descripcion }),
+            t.fotos.length > 0 && crear("div", { clase: "miniaturas" }, t.fotos.map((f) => miniaturaAmpliable(f)))
+        ])
+    ]);
+}
+
+/**
+ * Comparador antes/después. La foto del "antes" se recorta según el valor de un
+ * control deslizante (input range), que también funciona con el teclado.
+ *
+ * @param {object} t restauración (siempre trae imagenAntes e imagenDespues, RF08)
+ * @returns {HTMLElement}
+ */
+function comparador(t) {
+    const caja = crear("div", { clase: "comparador" }, [
+        crear("img", { clase: "comparador__despues", atributos: { src: t.imagenDespues, alt: `${t.titulo}, después de la restauración`, loading: "lazy" } }),
+        crear("img", { clase: "comparador__antes", atributos: { src: t.imagenAntes, alt: `${t.titulo}, antes de la restauración`, loading: "lazy" } }),
+        crear("span", { clase: "comparador__etiqueta comparador__etiqueta--antes", texto: "Antes", atributos: { "aria-hidden": "true" } }),
+        crear("span", { clase: "comparador__etiqueta comparador__etiqueta--despues", texto: "Después", atributos: { "aria-hidden": "true" } }),
+        crear("span", { clase: "comparador__linea", atributos: { "aria-hidden": "true" } })
+    ]);
+    const control = crear("input", {
+        clase: "comparador__control",
+        atributos: { type: "range", min: "0", max: "100", value: "50", "aria-label": `Comparar antes y después: ${t.titulo}` }
     });
+    const mover = () => caja.style.setProperty("--corte", `${control.value}%`);
+    control.addEventListener("input", mover);
+    mover();
+    caja.append(control);
+    return caja;
+}
+
+/** Botón "Solicitar restauración" con un mensaje listo para WhatsApp. */
+async function agregarBotonWhatsApp() {
+    const numero = dato(await informacionNegocio(), "whatsapp");
+    if (!numero) {
+        return;
+    }
+    document.getElementById("llamado").append(crear("a", {
+        clase: "boton boton--whatsapp",
+        atributos: {
+            href: enlaceWhatsApp(numero, "Hola, Tapizados El Miura. Quiero cotizar la restauración de un mueble. Les envío fotos."),
+            target: "_blank",
+            rel: "noopener"
+        }
+    }, [icono("whatsapp"), crear("span", { texto: "Solicitar restauración" })]));
 }

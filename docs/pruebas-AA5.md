@@ -183,3 +183,20 @@ Se revisó que el panel de la evidencia AA2 siga funcionando con los cambios:
   (necesaria para mostrarlo en el catálogo)".
 - La sesión es compartida: iniciar sesión en la API da acceso al panel, y cerrarla en la
   API cierra el panel.
+
+## Actualización: colección independiente de los datos
+
+Después de cargar los productos reales (volcado del 18 de octubre), los productos de
+prueba 1 a 4 quedaron ocultos y varias pruebas de la colección fallaban, porque usaban ids
+fijos (el producto 1 visible, el 3 agotado, el 5 oculto).
+
+La colección se ajustó para tomar los ids de las primeras respuestas de la API:
+
+- El primer y el segundo producto del catálogo, su categoría y el primer trabajo visible.
+- El caso del producto oculto se prueba ocultando un producto visible y consultándolo en el
+  sitio público (404). Al final se vuelve a mostrar.
+- La marca de agotado se valida contra el stock (`agotado` es verdadero solo con stock 0),
+  en lugar de depender de un producto agotado fijo.
+
+**Resultado:** 59 peticiones, 161 aserciones y 0 fallas, tanto con el volcado del 17 como
+con el del 18 de octubre. Solo requiere que haya al menos 2 productos y 1 trabajo visibles.

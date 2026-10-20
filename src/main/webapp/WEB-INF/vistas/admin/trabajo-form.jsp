@@ -16,6 +16,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${tituloPagina} - Tapizados El Miura</title>
+    <link rel="icon" href="${pageContext.request.contextPath}/img/favicon.png" type="image/png">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/css/admin.css">
 </head>
 <body>

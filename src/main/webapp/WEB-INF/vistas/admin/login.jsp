@@ -11,12 +11,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ingreso al panel - Tapizados El Miura</title>
+    <link rel="icon" href="${ctx}/img/favicon.png" type="image/png">
     <link rel="stylesheet" href="${ctx}/admin/css/admin.css">
 </head>
 <body class="pagina-login">
 
 <main class="tarjeta-login">
-    <p class="marca">TAPIZADOS <span>MIURA</span></p>
+    <p class="marca"><img src="${ctx}/img/logo-miura.png" alt="Tapizados El Miura" width="210" height="97"></p>
     <h1>Panel administrador</h1>
 
     <c:if test="${param.salida == '1'}">

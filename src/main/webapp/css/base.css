@@ -1,0 +1,1038 @@
+/* =====================================================================
+   Tapizados El Miura - Estilos comunes del sitio público
+   ---------------------------------------------------------------------
+   Contiene lo que comparten todas las páginas: variables de diseño,
+   tipografía, encabezado, pie, botones, tarjeta de producto, avisos,
+   visor de imágenes y estados de carga. Cada página agrega su propia
+   hoja (css/<pagina>.css) solo con lo que es exclusivo de ella.
+
+   Convención de nombres: bloque__elemento--variante (BEM), en español.
+   Diseño "móvil primero": los estilos base son para celular y se amplían
+   con @media (min-width: ...).
+   ===================================================================== */
+
+/* ---------- Fuentes (incluidas en el proyecto, licencia OFL) ---------- */
+@font-face {
+    font-family: "Barlow";
+    src: url("../fonts/barlow-latin-400-normal.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Barlow";
+    src: url("../fonts/barlow-latin-500-normal.woff2") format("woff2");
+    font-weight: 500;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Barlow";
+    src: url("../fonts/barlow-latin-600-normal.woff2") format("woff2");
+    font-weight: 600;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Barlow Condensed";
+    src: url("../fonts/barlow-condensed-latin-600-normal.woff2") format("woff2");
+    font-weight: 600;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Barlow Condensed";
+    src: url("../fonts/barlow-condensed-latin-700-normal.woff2") format("woff2");
+    font-weight: 700;
+    font-display: swap;
+}
+
+/* ---------- Variables de diseño ---------- */
+:root {
+    /* Colores tomados del logo */
+    --rojo: #d40012;
+    --rojo-hondo: #a8000e;
+    --naranja: #fc8000;
+    --naranja-suave: #fff1e2;
+    --tinta: #131212;
+
+    /* Neutros */
+    --gris: #5f5b57;
+    --gris-claro: #76716b;
+    --linea: #e6e2dd;
+    --fondo-suave: #f5f4f2;
+    --blanco: #ffffff;
+
+    /* Estados. El verde de WhatsApp de los botones con texto es más oscuro que
+       el de la marca para cumplir el contraste mínimo (WCAG AA, 4.5:1). */
+    --verde-marca-whatsapp: #1fa855;
+    --verde-whatsapp: #0f7f42;
+    --verde-hondo: #0b6634;
+    --exito: #1d7a46;
+    --error: #b3261e;
+
+    /* Tipografía */
+    --letra-texto: "Barlow", "Segoe UI", Arial, sans-serif;
+    --letra-titulo: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+
+    /* Medidas */
+    --ancho-max: 1240px;
+    --margen-lateral: 16px;
+    --radio: 10px;
+    --radio-pequeno: 6px;
+    --sombra: 0 6px 24px rgba(19, 18, 18, 0.08);
+}
+
+@media (min-width: 768px) {
+    :root {
+        --margen-lateral: 24px;
+    }
+}
+
+/* ---------- Reinicio básico ---------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    background: var(--blanco);
+    color: var(--tinta);
+    font-family: var(--letra-texto);
+    font-size: 1rem;
+    line-height: 1.55;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--letra-titulo);
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0 0 0.5em;
+}
+
+h1 {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+}
+
+h2 {
+    font-size: clamp(1.6rem, 3.2vw, 2.15rem);
+}
+
+h3 {
+    font-size: 1.3rem;
+}
+
+p {
+    margin: 0 0 1em;
+}
+
+/* Foco visible para quien navega con teclado */
+:focus-visible {
+    outline: 3px solid var(--naranja);
+    outline-offset: 2px;
+}
+
+/* Lo marcado con el atributo hidden nunca se muestra, aunque su clase defina display */
+[hidden] {
+    display: none !important;
+}
+
+/* Texto solo para lectores de pantalla */
+.solo-lector {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* Enlace para saltar al contenido (accesibilidad) */
+.saltar {
+    position: absolute;
+    left: 16px;
+    top: -60px;
+    z-index: 100;
+    padding: 10px 16px;
+    background: var(--tinta);
+    color: var(--blanco);
+    border-radius: var(--radio-pequeno);
+}
+
+.saltar:focus {
+    top: 12px;
+}
+
+/* Contenedor centrado con márgenes laterales */
+.contenedor {
+    width: 100%;
+    max-width: var(--ancho-max);
+    margin: 0 auto;
+    padding: 0 var(--margen-lateral);
+}
+
+.seccion {
+    padding: 48px 0;
+}
+
+.seccion--suave {
+    background: var(--fondo-suave);
+}
+
+.texto-secundario {
+    color: var(--gris);
+}
+
+/* =====================================================================
+   Encabezado
+   ===================================================================== */
+.encabezado {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--blanco);
+    border-bottom: 1px solid var(--linea);
+    min-height: 120px; /* reserva espacio mientras el JS lo dibuja */
+}
+
+.encabezado__fila {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+        "menu logo carrito"
+        "buscar buscar buscar";
+    align-items: center;
+    gap: 10px 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.encabezado__logo {
+    grid-area: logo;
+    justify-self: center;
+}
+
+.encabezado__logo img {
+    height: 46px;
+    width: auto;
+}
+
+.encabezado__menu-boton {
+    grid-area: menu;
+}
+
+.encabezado__carrito {
+    grid-area: carrito;
+}
+
+.buscador {
+    grid-area: buscar;
+    position: relative;
+    display: flex;
+}
+
+.buscador input {
+    width: 100%;
+    height: 44px;
+    padding: 0 48px 0 18px;
+    border: 1px solid #bdb7b0;
+    border-radius: 999px;
+    background: var(--blanco);
+}
+
+.buscador input::placeholder {
+    color: var(--gris-claro);
+}
+
+.buscador button {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+
+.icono-boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.icono-boton svg {
+    width: 26px;
+    height: 26px;
+}
+
+.carrito-enlace {
+    position: relative;
+}
+
+.carrito-enlace__texto {
+    display: none;
+}
+
+.carrito-enlace__contador {
+    position: absolute;
+    top: -2px;
+    left: 20px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--rojo);
+    color: var(--blanco);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+}
+
+.carrito-enlace__contador[hidden] {
+    display: none;
+}
+
+/* Menú de navegación (en celular se despliega con el botón) */
+.navegacion {
+    display: none;
+    border-top: 1px solid var(--linea);
+}
+
+.navegacion--abierta {
+    display: block;
+}
+
+.navegacion ul {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+}
+
+.navegacion a {
+    display: block;
+    padding: 12px 0;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.navegacion a[aria-current="page"] {
+    color: var(--rojo);
+}
+
+@media (min-width: 900px) {
+    .encabezado {
+        min-height: 128px;
+    }
+
+    .carrito-enlace {
+        gap: 14px;
+    }
+
+    .encabezado__fila {
+        grid-template-columns: auto minmax(0, 620px) auto;
+        grid-template-areas: "logo buscar carrito";
+        justify-content: space-between;
+        gap: 32px;
+        padding-top: 14px;
+        padding-bottom: 8px;
+    }
+
+    .encabezado__logo {
+        justify-self: start;
+    }
+
+    .encabezado__logo img {
+        height: 62px;
+    }
+
+    .encabezado__menu-boton {
+        display: none;
+    }
+
+    .carrito-enlace__texto {
+        display: inline;
+    }
+
+    .navegacion {
+        display: block;
+        border-top: 0;
+    }
+
+    .navegacion ul {
+        display: flex;
+        gap: 36px;
+        padding: 4px 0 12px;
+    }
+
+    .navegacion a {
+        padding: 4px 0;
+        border-bottom: 2px solid transparent;
+    }
+
+    .navegacion a:hover,
+    .navegacion a[aria-current="page"] {
+        border-bottom-color: var(--rojo);
+    }
+}
+
+/* =====================================================================
+   Botones
+   ===================================================================== */
+.boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 10px 22px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.boton svg {
+    width: 20px;
+    height: 20px;
+}
+
+.boton--principal {
+    background: var(--rojo);
+    color: var(--blanco);
+}
+
+.boton--principal:hover {
+    background: var(--rojo-hondo);
+}
+
+.boton--contorno {
+    border-color: var(--tinta);
+    background: transparent;
+    color: var(--tinta);
+}
+
+.boton--contorno:hover {
+    background: var(--tinta);
+    color: var(--blanco);
+}
+
+.boton--whatsapp {
+    background: var(--verde-whatsapp);
+    color: var(--blanco);
+}
+
+.boton--whatsapp:hover {
+    background: var(--verde-hondo);
+}
+
+.boton--texto {
+    min-height: auto;
+    padding: 4px 0;
+    border-radius: 0;
+    background: none;
+    color: var(--gris);
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.boton[disabled],
+.boton[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.enlace-flecha {
+    font-weight: 600;
+    color: var(--rojo);
+    text-decoration: none;
+}
+
+.enlace-flecha:hover {
+    text-decoration: underline;
+}
+
+/* =====================================================================
+   Migas de pan y encabezados de página
+   ===================================================================== */
+.migas {
+    margin: 20px 0 8px;
+    font-size: 0.9rem;
+    color: var(--gris);
+}
+
+.migas ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.migas li + li::before {
+    content: "/";
+    margin-right: 6px;
+    color: var(--gris-claro);
+}
+
+.migas a {
+    text-decoration: none;
+}
+
+.migas a:hover {
+    text-decoration: underline;
+}
+
+.titulo-pagina {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    margin-bottom: 4px;
+}
+
+.titulo-pagina h1 {
+    margin: 0;
+}
+
+.titulo-pagina__conteo {
+    color: var(--gris);
+    font-size: 1rem;
+}
+
+/* =====================================================================
+   Tarjeta de producto (inicio, catálogo y relacionados)
+   ===================================================================== */
+.rejilla-productos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 14px;
+}
+
+@media (min-width: 700px) {
+    .rejilla-productos {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 28px 20px;
+    }
+}
+
+@media (min-width: 1100px) {
+    .rejilla-productos--cuatro {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.tarjeta-producto {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Zona de la foto: enlace a la ficha, sello de agotado y botón "+" */
+.tarjeta-producto__foto {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: var(--blanco);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.tarjeta-producto__foto a {
+    display: block;
+    height: 100%;
+}
+
+.tarjeta-producto__foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 6%;
+    transition: transform 0.3s ease;
+}
+
+.tarjeta-producto:hover .tarjeta-producto__foto img {
+    transform: scale(1.04);
+}
+
+.tarjeta-producto__enlace {
+    text-decoration: none;
+}
+
+.tarjeta-producto__nombre {
+    font-family: var(--letra-texto);
+    font-size: 0.98rem;
+    font-weight: 500;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.tarjeta-producto__enlace:hover .tarjeta-producto__nombre {
+    text-decoration: underline;
+}
+
+.tarjeta-producto__precio {
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+.tarjeta-producto__ref {
+    font-size: 0.85rem;
+    color: var(--gris);
+    margin: 0;
+}
+
+/* Botón "+" sobre la foto: acceso rápido al carrito */
+.tarjeta-producto__agregar {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--tinta);
+    color: var(--blanco);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.tarjeta-producto__agregar:hover {
+    background: var(--rojo);
+}
+
+.tarjeta-producto__agregar svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* Sellos sobre la foto */
+.sello {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.sello--agotado {
+    background: var(--naranja);
+    color: var(--tinta);
+}
+
+/* =====================================================================
+   Estados: cargando, vacío y error
+   ===================================================================== */
+.estado {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--gris);
+    border: 1px dashed var(--linea);
+    border-radius: var(--radio);
+}
+
+.estado h2,
+.estado h3 {
+    color: var(--tinta);
+}
+
+.estado--error {
+    border-color: #e9b6b2;
+    background: #fdf3f2;
+    color: var(--error);
+}
+
+/* Bloques grises animados mientras llegan los datos */
+.esqueleto {
+    background: linear-gradient(90deg, #efedea 25%, #f7f6f4 50%, #efedea 75%);
+    background-size: 200% 100%;
+    animation: esqueleto 1.4s infinite;
+    border-radius: var(--radio);
+}
+
+.esqueleto--foto {
+    aspect-ratio: 1 / 1;
+    margin-bottom: 10px;
+}
+
+.esqueleto--linea {
+    height: 16px;
+    width: 80%;
+    margin-bottom: 8px;
+}
+
+.esqueleto--corta {
+    width: 40%;
+}
+
+@keyframes esqueleto {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+/* =====================================================================
+   Pie de página
+   ===================================================================== */
+.pie {
+    background: var(--tinta);
+    color: #d9d5d0;
+    margin-top: 56px;
+    font-size: 0.95rem;
+}
+
+.pie__columnas {
+    display: grid;
+    gap: 32px;
+    padding-top: 44px;
+    padding-bottom: 32px;
+}
+
+@media (min-width: 800px) {
+    .pie__columnas {
+        grid-template-columns: 1.3fr 1fr 1.3fr 1fr;
+    }
+}
+
+.pie__logo {
+    display: inline-block;
+    background: var(--blanco);
+    border-radius: var(--radio);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+}
+
+.pie__logo img {
+    height: 48px;
+    width: auto;
+}
+
+.pie h2 {
+    font-size: 1.25rem;
+    color: var(--blanco);
+    margin-bottom: 12px;
+}
+
+.pie ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.pie a {
+    color: #d9d5d0;
+    text-decoration: none;
+}
+
+.pie a:hover {
+    color: var(--blanco);
+    text-decoration: underline;
+}
+
+.pie__dato {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.pie__dato svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+    color: var(--naranja);
+}
+
+.pie__redes {
+    display: flex;
+    gap: 12px;
+}
+
+.pie__redes a {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #45413e;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+}
+
+.pie__redes a:hover {
+    border-color: var(--blanco);
+}
+
+.pie__redes svg {
+    width: 20px;
+    height: 20px;
+}
+
+.pie__final {
+    border-top: 1px solid #2c2a28;
+    padding-top: 16px;
+    padding-bottom: 24px;
+    font-size: 0.85rem;
+    color: #a39e98;
+}
+
+/* Botón flotante de WhatsApp */
+.whatsapp-flotante {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 40;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--verde-marca-whatsapp);
+    color: var(--blanco);
+    display: grid;
+    place-items: center;
+    box-shadow: var(--sombra);
+}
+
+.whatsapp-flotante:hover {
+    background: var(--verde-whatsapp);
+}
+
+.whatsapp-flotante svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* =====================================================================
+   Avisos (confirmaciones breves)
+   ===================================================================== */
+.avisos {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 60;
+    transform: translateX(-50%);
+    display: grid;
+    gap: 8px;
+    width: min(92vw, 420px);
+    pointer-events: none;
+}
+
+.aviso {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radio);
+    background: var(--tinta);
+    color: var(--blanco);
+    box-shadow: var(--sombra);
+    pointer-events: auto;
+    animation: aviso-entra 0.2s ease-out;
+}
+
+.aviso--error {
+    background: var(--error);
+}
+
+.aviso a {
+    margin-left: auto;
+    color: var(--blanco);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@keyframes aviso-entra {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+/* =====================================================================
+   Visor de imágenes ampliadas
+   ===================================================================== */
+.visor {
+    width: min(96vw, 1100px);
+    max-height: 92vh;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radio);
+    background: var(--tinta);
+}
+
+.visor::backdrop {
+    background: rgba(19, 18, 18, 0.85);
+}
+
+.visor img {
+    width: 100%;
+    max-height: 84vh;
+    object-fit: contain;
+}
+
+.visor__pie {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    color: var(--blanco);
+}
+
+.visor__cerrar {
+    margin-left: auto;
+    border: 1px solid #5a5652;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--blanco);
+    padding: 6px 14px;
+    cursor: pointer;
+}
+
+/* =====================================================================
+   Selector de cantidad (producto y carrito)
+   ===================================================================== */
+.cantidad {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #bdb7b0;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.cantidad button {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    background: transparent;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.cantidad button:disabled {
+    color: var(--gris-claro);
+    cursor: not-allowed;
+}
+
+.cantidad input {
+    width: 44px;
+    height: 40px;
+    border: 0;
+    text-align: center;
+    font-weight: 600;
+    -moz-appearance: textfield;
+}
+
+.cantidad input::-webkit-outer-spin-button,
+.cantidad input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Movimiento reducido para quien lo prefiera en su sistema */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* =====================================================================
+   Miniaturas ampliables (galerías de trabajos)
+   ===================================================================== */
+.miniaturas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 10px;
+}
+
+.miniatura {
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radio-pequeno);
+    background: var(--fondo-suave);
+    overflow: hidden;
+    cursor: zoom-in;
+}
+
+.miniatura img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.miniatura:hover img {
+    transform: scale(1.06);
+}
+
+/* Bloque de llamado a la acción al final de las galerías */
+.llamado {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
+    padding: 28px;
+    border-radius: var(--radio);
+    background: var(--tinta);
+    color: var(--blanco);
+}
+
+.llamado h2 {
+    margin-bottom: 6px;
+}
+
+.llamado p {
+    margin: 0;
+    color: #d9d5d0;
+    max-width: 60ch;
+}

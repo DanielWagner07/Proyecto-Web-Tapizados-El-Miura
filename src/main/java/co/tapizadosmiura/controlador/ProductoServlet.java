@@ -192,20 +192,42 @@ public class ProductoServlet extends HttpServlet {
             return;
         }
 
+        // Foto que se reemplaza: su archivo se borra cuando la BD ya apunta a la nueva
+        String rutaAnterior = null;
+        if (!esNuevo && traeImagen) {
+            Producto actual = productoDAO.buscarPorId(idProducto);
+            rutaAnterior = actual == null ? null : actual.getImagenPrincipal();
+        }
+
         String rutaImagen = traeImagen
                 ? AlmacenImagenes.guardar(getServletContext(), imagen, "productos", producto.getReferencia())
                 : null;
 
-        if (esNuevo) {
-            productoDAO.crear(producto, rutaImagen);
-            redirigirConAviso(request, response, RUTA, "exito",
-                    "Producto \"" + producto.getNombre() + "\" registrado en el catálogo.");
-        } else if (productoDAO.actualizar(producto, rutaImagen)) {
-            redirigirConAviso(request, response, RUTA, "exito",
-                    "Producto \"" + producto.getNombre() + "\" actualizado.");
-        } else {
-            redirigirConAviso(request, response, RUTA, "error", "El producto ya no existe.");
+        boolean guardado;
+        try {
+            if (esNuevo) {
+                productoDAO.crear(producto, rutaImagen);
+                guardado = true;
+            } else {
+                guardado = productoDAO.actualizar(producto, rutaImagen);
+            }
+        } catch (SQLException e) {
+            // Si la BD falla, se borra la foto recién subida para no dejar archivos sin usar
+            AlmacenImagenes.eliminar(getServletContext(), rutaImagen);
+            throw e;
         }
+
+        if (!guardado) {
+            AlmacenImagenes.eliminar(getServletContext(), rutaImagen);
+            redirigirConAviso(request, response, RUTA, "error", "El producto ya no existe.");
+            return;
+        }
+        if (rutaAnterior != null && !rutaAnterior.equals(rutaImagen)) {
+            AlmacenImagenes.eliminar(getServletContext(), rutaAnterior);
+        }
+        redirigirConAviso(request, response, RUTA, "exito", esNuevo
+                ? "Producto \"" + producto.getNombre() + "\" registrado en el catálogo."
+                : "Producto \"" + producto.getNombre() + "\" actualizado.");
     }
 
     /** Activa o desactiva un producto (borrado lógico). */

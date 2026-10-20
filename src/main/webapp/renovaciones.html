@@ -1,190 +1,52 @@
 <!DOCTYPE html>
+<!--
+  Renovaciones / trabajos realizados para negocios (prototipo 5, RF05 / CU06).
+  Colaboraciones con su cliente, descripción y galería de fotos, con
+  GET /api/trabajos?tipo=colaboracion (js/renovaciones.js).
+-->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Renovaciones de Locales</title>
+    <title>Renovaciones para negocios | Tapizados El Miura</title>
+    <meta name="description" content="Renovamos y fabricamos el mobiliario de restaurantes, discotecas y otros negocios de la región.">
+    <link rel="icon" href="img/favicon.png" type="image/png">
+    <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/renovaciones.css">
+    <script type="module" src="js/renovaciones.js"></script>
 </head>
-<body>
+<body data-pagina="renovaciones">
+<a class="saltar" href="#contenido">Ir al contenido</a>
+<header id="encabezado" class="encabezado"></header>
 
-    <!-- Barra Superior -->
-    <div class="top-bar">
-        <div class="top-links">
-            <a href="#" class="link-rojo">Novedades y Ofertas</a>
-            <a href="#" class="link-rojo">Envío gratis</a>
-            <a href="#">Asesoría en diseño</a>
-            <a href="#">Colaboraciones</a>
-            <a href="#">Novedades</a>
-        </div>
-        <div class="top-right">
-            <a href="#" class="carrito">
-                🛒 Carrito
-            </a>
-            <div class="buscador">
-                <input type="text" placeholder="Buscar">
-                <button><img src="img/logo de buscar.png" alt="Buscar" class="icono-btn"></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Logo -->
-    <div class="logo-container">
-        <div class="logo">
-            <span class="logo-texto">TAPIZADOS <span class="rojo">MIURA</span></span>
-        </div>
-    </div>
-
-    <!-- Menu de Navegación -->
-    <nav class="menu-principal">
-        <button class="boton-menu" id="botonMenu">☰ Menú</button>
-        <ul class="lista-menu" id="listaMenu">
-            <li><a href="muebles.html">MUEBLES</a></li>
-            <li><a href="renovaciones.html">RENOVACIONES</a></li>
-            <li><a href="restauraciones.html">TAPIZADO Y RESTAURACION</a></li>
-            <li><a href="informacion.html">INFORMACION</a></li>
-        </ul>
+<main id="contenido" class="contenedor">
+    <nav class="migas" aria-label="Ubicación">
+        <ol>
+            <li><a href="index.html">Inicio</a></li>
+            <li aria-current="page">Renovaciones</li>
+        </ol>
     </nav>
 
-    <!-- Contenedor principal de la pagina -->
-    <main class="pagina-restauracion">
-        <p class="miga-pan"><a href="index.html">Inicio</a> / <span>Renovaciones</span></p>
-
-        <!-- Primera renovacion: discoteca -->
-        <section class="bloque-local" id="discoteca">
-            <div class="titulo-local">
-                <h2>Discoteca Fuego Nocturno</h2>
-            </div>
-
-            <!-- Estado inicial del local -->
-            <article class="fila-renovacion">
-                <figure class="columna-imagen">
-                    <img src="img/Fotos Renovacion.png" alt="Discoteca antes de la renovacion de sus muebles">
-                </figure>
-
-                <div class="columna-texto">
-                    <p class="estado-local">Antes de la renovacion</p>
-                    <h3>Lo que solicitaba el cliente</h3>
-                    <p>
-                        El cliente necesitaba recuperar los sillones del area VIP porque la tela
-                        estaba desgastada, los asientos habian perdido firmeza y la imagen general
-                        del lugar ya no transmitia calidad ni comodidad.
-                    </p>
-                    <p>
-                        Tambien pidio conservar el estilo elegante del negocio, pero con materiales
-                        mas resistentes para soportar el uso continuo de fines de semana y eventos.
-                    </p>
-                </div>
-            </article>
-
-            <!-- Resultado final del local -->
-            <article class="fila-renovacion fila-invertida">
-                <div class="columna-texto">
-                    <p class="estado-local">Despues de la renovacion</p>
-                    <h3>Como quedo el espacio renovado</h3>
-                    <p>
-                        Se cambio el tapizado completo, se reforzo la estructura interna y se
-                        reemplazo el relleno de los asientos para devolver firmeza y confort.
-                    </p>
-                    <p>
-                        El resultado fue un ambiente mas moderno, uniforme y comodo para los
-                        visitantes, con muebles listos para uso frecuente.
-                    </p>
-                </div>
-
-                <figure class="columna-imagen">
-                    <img src="img/Fotos Renovacion.png" alt="Discoteca despues de la renovacion de sus muebles">
-                </figure>
-            </article>
-
-            <!-- Galeria adicional del local -->
-            <section class="galeria-local">
-                <figure class="miniatura-local">
-                    <img src="img/Fotos Renovacion.png" alt="Detalle renovado de la discoteca" class="imagen-zoom">
-                </figure>
-                <figure class="miniatura-local">
-                    <img src="img/Fotos Renovacion.png" alt="Sillon renovado en la discoteca" class="imagen-zoom">
-                </figure>
-                <figure class="miniatura-local">
-                    <img src="img/Fotos Renovacion.png" alt="Asiento complementario renovado para la discoteca" class="imagen-zoom">
-                </figure>
-                <figure class="miniatura-local">
-                    <img src="img/Fotos Renovacion.png" alt="Detalle adicional del tapizado renovado en la discoteca" class="imagen-zoom">
-                </figure>
-            </section>
-        </section>
-
-        <!-- Segunda renovacion: cafeteria -->
-        <section class="bloque-local" id="cafeteria">
-            <div class="titulo-local">
-                <h2>Cafeteria Aroma de Barrio</h2>
-            </div>
-
-            <!-- Estado inicial del local -->
-            <article class="fila-renovacion">
-                <figure class="columna-imagen">
-                    <img src="img/Fotos Renovacion.png" alt="Cafeteria antes de la renovacion de sus muebles">
-                </figure>
-
-                <div class="columna-texto">
-                    <p class="estado-local">Antes de la renovacion</p>
-                    <h3>Lo que solicitaba el cliente</h3>
-                    <p>
-                        La cafeteria queria renovar sus bancas y muebles en ele porque presentaban
-                        desgaste en la superficie, acolchado vencido y un aspecto antiguo que no iba
-                        con la nueva imagen del local.
-                    </p>
-                    <p>
-                        El cliente buscaba un espacio mas acogedor y facil de limpiar, sin perder la
-                        comodidad para quienes pasan bastante tiempo en el lugar.
-                    </p>
-                </div>
-            </article>
-
-            <!-- Resultado final del local -->
-            <article class="fila-renovacion fila-invertida">
-                <div class="columna-texto">
-                    <p class="estado-local">Despues de la renovacion</p>
-                    <h3>Como quedo el espacio renovado</h3>
-                    <p>
-                        Se reemplazo el tapizado, se ajustaron las uniones del mueble y se mejoro el
-                        acolchado para ofrecer una sentada mas firme y agradable.
-                    </p>
-                    <p>
-                        La cafeteria quedo con una presentacion mas fresca y ordenada, con muebles
-                        listos para el uso diario y en armonia con el ambiente del negocio.
-                    </p>
-                </div>
-
-                <figure class="columna-imagen">
-                    <img src="img/Fotos Renovacion.png" alt="Cafeteria despues de la renovacion de sus muebles">
-                </figure>
-            </article>
-
-            <!-- Galeria adicional del local -->
-            <section class="galeria-local">
-                <figure class="miniatura-local">
-                    <img src="img/Fotos Renovacion.png" alt="Vista renovada de la cafeteria" class="imagen-zoom">
-                </figure>
-                <figure class="miniatura-local">
-                    <img src="img/Fotos Renovacion.png" alt="Mueble complementario renovado para la cafeteria" class="imagen-zoom">
-                </figure>
-                <figure class="miniatura-local">
-                    <img src="img/Fotos Renovacion.png" alt="Mesa renovada para la cafeteria" class="imagen-zoom">
-                </figure>
-                <figure class="miniatura-local">
-                    <img src="img/Fotos Renovacion.png" alt="Detalle adicional del mobiliario renovado para la cafeteria" class="imagen-zoom">
-                </figure>
-            </section>
-        </section>
-    </main>
-
-    <!-- Visor simple para ampliar imagenes -->
-    <div class="visor-imagen" id="visorImagen">
-        <button class="cerrar-visor" id="cerrarVisor" type="button">X</button>
-        <img src="" alt="Imagen ampliada" id="imagenAmpliada">
+    <div class="cabecera-renovaciones">
+        <h1>Renovaciones para negocios</h1>
+        <p class="texto-secundario">
+            Retapizamos, reparamos y fabricamos el mobiliario de restaurantes, discotecas y locales
+            comerciales. Estos son algunos de los proyectos que hemos hecho.
+        </p>
     </div>
 
-    <script src="js/renovaciones.js"></script>
+    <div class="proyectos" id="proyectos"></div>
+
+    <section class="llamado" id="llamado" aria-labelledby="titulo-llamado">
+        <div>
+            <h2 id="titulo-llamado">¿Quieres renovar los muebles de tu negocio?</h2>
+            <p>Cuéntanos cuántos muebles son y cómo los imaginas. Vamos a tu local para medir y cotizar.</p>
+        </div>
+    </section>
+</main>
+
+<footer id="pie" class="pie"></footer>
+<div id="avisos" class="avisos" aria-live="polite"></div>
+<noscript><p class="contenedor">Para ver la galería active JavaScript en su navegador.</p></noscript>
 </body>
 </html>

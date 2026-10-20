@@ -1,104 +1,74 @@
 <!DOCTYPE html>
+<!--
+  Información y contacto (prototipo 6, RF09 / CU09).
+  Todos los textos se editan desde el panel (Información del negocio) y llegan
+  con GET /api/informacion y GET /api/servicios (js/informacion.js).
+-->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informacion</title>
+    <title>Información y contacto | Tapizados El Miura</title>
+    <meta name="description" content="Dirección, horario, teléfono, WhatsApp, cobertura y garantía de Tapizados El Miura en Caucasia, Antioquia.">
+    <link rel="icon" href="img/favicon.png" type="image/png">
+    <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/informacion.css">
+    <script type="module" src="js/informacion.js"></script>
 </head>
-<body>
+<body data-pagina="informacion">
+<a class="saltar" href="#contenido">Ir al contenido</a>
+<header id="encabezado" class="encabezado"></header>
 
-    <!-- Barra Superior -->
-    <div class="top-bar">
-        <div class="top-links">
-            <a href="#" class="link-rojo">Novedades y Ofertas</a>
-            <a href="#" class="link-rojo">Envío gratis</a>
-            <a href="#">Asesoría en diseño</a>
-            <a href="#">Colaboraciones</a>
-            <a href="#">Novedades</a>
-        </div>
-        <div class="top-right">
-            <a href="#" class="carrito">
-                🛒 Carrito
-            </a>
-            <div class="buscador">
-                <input type="text" placeholder="Buscar">
-                <button><img src="img/logo de buscar.png" alt="Buscar" class="icono-btn"></button>
-            </div>
-        </div>
+<main id="contenido">
+    <div class="contenedor">
+        <nav class="migas" aria-label="Ubicación">
+            <ol>
+                <li><a href="index.html">Inicio</a></li>
+                <li aria-current="page">Información</li>
+            </ol>
+        </nav>
     </div>
 
-    <!-- Logo -->
-    <div class="logo-container">
-        <div class="logo">
-            <span class="logo-texto">TAPIZADOS <span class="rojo">MIURA</span></span>
+    <!-- Quiénes somos y contacto -->
+    <section class="contenedor nosotros" aria-labelledby="titulo-nosotros">
+        <div class="nosotros__texto">
+            <h1 id="titulo-nosotros">Tapizados El Miura</h1>
+            <p class="nosotros__lema">Taller de tapicería, restauración y fabricación de muebles.</p>
+            <div id="trayectoria" class="nosotros__trayectoria">
+                <div class="esqueleto esqueleto--linea"></div>
+                <div class="esqueleto esqueleto--linea"></div>
+            </div>
         </div>
-    </div>
+        <aside class="tarjeta-contacto" aria-labelledby="titulo-contacto">
+            <h2 id="titulo-contacto">Contáctanos</h2>
+            <div id="boton-whatsapp"></div>
+            <ul class="tarjeta-contacto__datos" id="contacto"></ul>
+        </aside>
+    </section>
 
-    <!-- Menu de Navegacion -->
-    <nav class="menu-principal">
-        <button class="boton-menu" id="botonMenu">☰ Menú</button>
-        <ul class="lista-menu" id="listaMenu">
-            <li><a href="muebles.html">MUEBLES</a></li>
-            <li><a href="renovaciones.html">RENOVACIONES</a></li>
-            <li><a href="restauraciones.html">TAPIZADO Y RESTAURACION</a></li>
-            <li><a href="informacion.html">INFORMACION</a></li>
-        </ul>
-    </nav>
+    <!-- Servicios -->
+    <section class="seccion seccion--suave" aria-labelledby="titulo-servicios">
+        <div class="contenedor">
+            <h2 id="titulo-servicios">Lo que hacemos en el taller</h2>
+            <ul class="lista-servicios" id="servicios"></ul>
+        </div>
+    </section>
 
-    <!-- Hero principal con una imagen amplia del negocio -->
-    <main class="pagina-informacion">
-        <section class="hero-negocio">
-            <img src="img/Tapiceria.avif" alt="Vista principal del negocio Tapizados Miura">
-            <div class="capa-hero">
-                <p class="subtitulo-hero">Informacion del negocio</p>
-                <h1>Tapizados Miura</h1>
-                <p>
-                    Fabricacion, tapizado y restauracion de muebles con trayectoria en Caucasia,
-                    Antioquia desde 2018.
-                </p>
-            </div>
-        </section>
+    <!-- Cobertura y garantía -->
+    <section class="seccion" aria-label="Cobertura y garantía">
+        <div class="contenedor politicas" id="politicas"></div>
+    </section>
 
-        <!-- Informacion del negocio en una zona mas compacta -->
-        <section class="contenido-informacion">
-            <div class="encabezado-informacion">
-                <p class="etiqueta">Conocenos mejor</p>
-                <h2>Experiencia, cercania y calidad en cada trabajo</h2>
-            </div>
+    <!-- Redes -->
+    <section class="contenedor redes" id="seccion-redes" aria-labelledby="titulo-redes" hidden>
+        <h2 id="titulo-redes">Síguenos</h2>
+        <p class="texto-secundario">Publicamos los trabajos recién terminados en nuestras redes.</p>
+        <div class="redes__lista" id="redes"></div>
+    </section>
+</main>
 
-            <div class="texto-principal">
-                <p>
-                    En Tapizados Miura nos enorgullece ofrecer a nuestros clientes una amplia gama
-                    de servicios relacionados con el tapizado, la restauración y la fabricación de
-                    muebles. Nuestro compromiso es brindar soluciones personalizadas que se adapten
-                    a las necesidades y gustos de cada cliente, garantizando siempre la máxima
-                    calidad en cada proyecto.
-                </p>
-                <p>
-                    Nuestra trayectoria en la industria nos ha permitido crecer con la confianza de
-                    los clientes, manteniendo un compromiso constante con la buena atencion, los
-                    acabados cuidadosos y el detalle en cada proyecto.
-                </p>
-            </div>
-
-            <div class="datos-negocio">
-                <p><strong>Direccion:</strong> Carrera 18 Cll 11-12, Caucasia, Antioquia</p>
-                <p><strong>Telefono:</strong> +57 300 1234567</p>
-                <p><strong>Correo:</strong> info@tapizadosmiura.com</p>
-                <p><strong>Trayectoria:</strong> Desde 2018 fabricando y liderando en esta industria</p>
-                <p><strong>Servicio:</strong> Tapizados, restauracion y renovaciones</p>
-            </div>
-
-            <div class="redes-negocio">
-                <h3>Redes sociales</h3>
-                <p><strong>Instagram:</strong> @tapizadosmiura</p>
-                <p><strong>Facebook:</strong> @tapizadosmiura</p>
-                <p><strong>TikTok:</strong> @tapizadosmiura</p>
-            </div>
-        </section>
-    </main>
-
-    <script src="js/informacion.js"></script>
+<footer id="pie" class="pie"></footer>
+<div id="avisos" class="avisos" aria-live="polite"></div>
+<noscript><p class="contenedor">Para ver la información active JavaScript en su navegador.</p></noscript>
 </body>
 </html>
