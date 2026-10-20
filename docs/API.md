@@ -201,7 +201,7 @@ políticas y redes sociales.
   - `horario` (grupo `horario`) y `cobertura` (grupo `cobertura`).
   - `trayectoria` (grupo `nosotros`) y `garantia` (grupo `politicas`).
   - `instagram`, `facebook` y `tiktok` (grupo `redes`). Facebook y TikTok se agregan con el
-    script `03_datos_faltantes (Redes sociales).sql`.
+    script `sql/03_datos_faltantes.sql`.
 
 ### GET /api/productos
 

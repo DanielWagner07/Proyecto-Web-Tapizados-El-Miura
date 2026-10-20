@@ -24,13 +24,23 @@ Maven no necesita instalarse: `mvnw.cmd` lo descarga la primera vez.
 
 ## Puesta en marcha
 
-1. **Base de datos.** Ejecuta en MySQL, en este orden, los scripts del repositorio de la BD:
-   - `01_esquema.sql`: crea la base `tapizados_miura` con tablas, restricciones y vistas.
-   - `02_datos_prueba.sql`: carga datos de ejemplo y el administrador inicial.
-   - `03_datos_faltantes (Redes sociales).sql`: agrega Facebook y TikTok a la información
-     del negocio y las categorías Sillas mecedoras, Juegos de sala y Mesas de centro. Se puede
-     ejecutar sobre una BD con datos reales: no borra nada y, si los datos ya existen, no
-     hace nada.
+1. **Base de datos.** Los scripts están en la carpeta [`sql/`](sql) del proyecto. Ejecútalos
+   en MySQL en este orden (en phpMyAdmin: pestaña **Importar**, un archivo a la vez):
+   - `01_esquema (Estructuracion de BD).sql`: crea la base `tapizados_miura` con tablas,
+     restricciones y vistas. Borra la base si ya existe, así que no se ejecuta sobre una BD
+     con datos reales.
+   - `02_datos_prueba (Insercion de Datos Ejemplo).sql`: carga datos de ejemplo y el
+     administrador de prueba.
+   - `03_datos_faltantes.sql`: agrega los datos que se fueron necesitando después de crear la
+     BD. Hoy agrega Facebook y TikTok a la información del negocio y las categorías Sillas
+     mecedoras, Juegos de sala y Mesas de centro. Los datos nuevos se agregan al final de este
+     mismo archivo. Se puede ejecutar sobre una BD con datos reales: no borra nada y, si los
+     datos ya existen, no hace nada.
+
+   Los scripts funcionan en MySQL 8 y en el MariaDB de XAMPP.
+
+   Con los datos de ejemplo, los productos y trabajos se ven con la imagen genérica, porque
+   sus fotos no vienen en el repositorio (ver [Imágenes subidas](#imágenes-subidas)).
 2. **Conexión.** Revisa usuario y contraseña de MySQL en `src/main/resources/db.properties`.
 3. **Tomcat.** Se usa Tomcat 11 en el puerto 8081. El puerto 8080 lo ocupa el Tomcat 8.5
    de XAMPP, que no es compatible con este proyecto. Si tu Tomcat está en otra carpeta,
@@ -46,7 +56,7 @@ Maven no necesita instalarse: `mvnw.cmd` lo descarga la primera vez.
    - Sitio público: http://localhost:8081/tapizados-miura/
    - Panel administrador: http://localhost:8081/tapizados-miura/admin/login
 
-Usuario de prueba (creado por `02_datos_prueba.sql`, solo para desarrollo):
+Usuario de prueba (creado por el script 02, solo para desarrollo):
 
 - Correo: `admin@tapizadosmiura.com`
 - Contraseña: `Miura2026*Cambiar`
@@ -89,6 +99,10 @@ docs/
 ├── pruebas-AA2.md                         Registro de pruebas del panel (servlets y JSP)
 ├── pruebas-AA5.md                         Registro de pruebas de la API
 └── pruebas-AA4.md                         Registro de pruebas del sitio público
+sql/
+├── 01_esquema (Estructuracion de BD).sql            Estructura de la BD
+├── 02_datos_prueba (Insercion de Datos Ejemplo).sql Datos de ejemplo
+└── 03_datos_faltantes.sql                           Datos agregados después (redes, categorías...)
 ```
 
 ## Sitio público
